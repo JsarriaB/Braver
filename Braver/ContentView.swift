@@ -98,11 +98,17 @@ struct ContentView: View {
                     }
                     .tag(2)
 
-                ProgresoView()
+                GuiaView()
                     .tabItem {
-                        Label("Progreso", systemImage: selectedTab == 3 ? "chart.line.uptrend.xyaxis" : "chart.line.uptrend.xyaxis")
+                        Label("Guía", systemImage: selectedTab == 3 ? "book.fill" : "book")
                     }
                     .tag(3)
+
+                ProgresoView()
+                    .tabItem {
+                        Label("Progreso", systemImage: "chart.line.uptrend.xyaxis")
+                    }
+                    .tag(4)
             }
             .tint(selectedTab == 2 ? BraverTheme.bravura : BraverTheme.accent)
         }

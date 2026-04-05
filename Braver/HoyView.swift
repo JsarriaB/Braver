@@ -6,6 +6,7 @@ struct HoyView: View {
     @State private var userName = "Jorge"
     @State private var challengeAccepted = false
     @State private var showReflectionModal = false
+    @State private var showPledge = false
     @State private var featuredOrbIndex: Int = 0
     @State private var dragOffset: CGFloat = 0
     @State private var todaysOptions: [DailyChallenge] = []
@@ -60,6 +61,13 @@ struct HoyView: View {
         }
         .sheet(isPresented: $showReflectionModal) {
             ReflexionModal(isPresented: $showReflectionModal)
+        }
+        .sheet(isPresented: $showPledge) {
+            if let challenge = todayChallenge {
+                PledgeView(challenge: challenge, isPresented: $showPledge) {
+                    withAnimation(.spring(response: 0.3)) { challengeAccepted = true }
+                }
+            }
         }
         .onAppear {
             streakService.registerAppOpen()
@@ -339,9 +347,7 @@ struct HoyView: View {
                     } else {
                         VStack(spacing: 10) {
                             Button("Lo intento hoy  →") {
-                                withAnimation(.spring(response: 0.3)) {
-                                    challengeAccepted = true
-                                }
+                                showPledge = true
                             }
                             .buttonStyle(BraverPrimaryButton())
 
