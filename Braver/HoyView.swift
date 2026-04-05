@@ -3,8 +3,9 @@ import SwiftUI
 struct HoyView: View {
     @StateObject private var streakService = StreakService.shared
     @StateObject private var historyService = ChallengeHistoryService.shared
-    @State private var userName = "Jorge"
+    @State private var userName = UserDefaults.standard.string(forKey: "braver_user_name") ?? "Tú"
     @State private var challengeAccepted = false
+    @State private var challengeRecorded = false
     @State private var showReflectionModal = false
     @State private var showPledge = false
     @State private var featuredOrbIndex: Int = 0
@@ -66,14 +67,40 @@ struct HoyView: View {
             if let challenge = todayChallenge {
                 PledgeView(challenge: challenge, isPresented: $showPledge) {
                     withAnimation(.spring(response: 0.3)) { challengeAccepted = true }
+                    UserDefaults.standard.set(Date(), forKey: "braver_challenge_accepted_date")
                 }
             }
         }
         .onAppear {
             streakService.registerAppOpen()
             featuredOrbIndex = currentStageIndex
+            userName = UserDefaults.standard.string(forKey: "braver_user_name") ?? "Tú"
+
+            let today = Calendar.current.startOfDay(for: Date())
+
+            if let d = UserDefaults.standard.object(forKey: "braver_challenge_accepted_date") as? Date,
+               Calendar.current.isDate(d, inSameDayAs: today) {
+                challengeAccepted = true
+            }
+            if let d = UserDefaults.standard.object(forKey: "braver_challenge_recorded_date") as? Date,
+               Calendar.current.isDate(d, inSameDayAs: today) {
+                challengeRecorded = true
+            }
+
             if todaysOptions.isEmpty {
-                todaysOptions = ChallengeLibrary.todaysChallenges(orbDays: orbDays, seen: [])
+                if let ids = UserDefaults.standard.stringArray(forKey: "braver_todays_challenge_ids"),
+                   let savedDate = UserDefaults.standard.object(forKey: "braver_todays_challenge_date") as? Date,
+                   Calendar.current.isDate(savedDate, inSameDayAs: today) {
+                    let saved = ids.compactMap { id in ChallengeLibrary.all.first { $0.id == id } }
+                    todaysOptions = saved.isEmpty
+                        ? ChallengeLibrary.todaysChallenges(orbDays: orbDays, seen: [])
+                        : saved
+                } else {
+                    let challenges = ChallengeLibrary.todaysChallenges(orbDays: orbDays, seen: [])
+                    todaysOptions = challenges
+                    UserDefaults.standard.set(challenges.map { $0.id }, forKey: "braver_todays_challenge_ids")
+                    UserDefaults.standard.set(Date(), forKey: "braver_todays_challenge_date")
+                }
             }
         }
     }
@@ -126,8 +153,18 @@ struct HoyView: View {
         // Gregorian: 1=Dom, 2=Lun... 7=Sáb → convertimos a 0=Lun...6=Dom
         let todayIndex = (weekdayToday + 5) % 7
         let dayLabels = ["L", "M", "X", "J", "V", "S", "D"]
-        // Mock: días pasados de esta semana como completados
-        let completedDays = (0..<7).map { $0 < todayIndex }
+        // Lunes de esta semana ISO (semana empieza en lunes)
+        let weekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today))!
+        // Días activos esta semana: reto completado, momento Braver o lección de guía
+        let activeDayStarts: Set<Date> = Set(
+            streakService.activityDates
+                .filter { calendar.startOfDay(for: $0) >= calendar.startOfDay(for: weekStart) }
+                .map { calendar.startOfDay(for: $0) }
+        )
+        let completedDays = (0..<7).map { i -> Bool in
+            let dayDate = calendar.date(byAdding: .day, value: i, to: weekStart)!
+            return activeDayStarts.contains(calendar.startOfDay(for: dayDate))
+        }
 
         return HStack(spacing: 0) {
             ForEach(0..<7, id: \.self) { i in
@@ -212,7 +249,7 @@ struct HoyView: View {
                 ForEach(Array(orbStages.enumerated()), id: \.offset) { i, stage in
                     let isFeatured = i == featuredOrbIndex
                     let isUnlocked = orbDays >= stage.minDays
-                    let daysLeft = max(0, stage.minDays - streak)
+                    let daysLeft = max(0, stage.minDays - orbDays)
 
                     VStack(spacing: 8) {
                         ZStack {
@@ -323,13 +360,20 @@ struct HoyView: View {
                     Divider()
                         .background(BraverTheme.surfaceBorder)
 
-                    if challengeAccepted {
+                    if challengeAccepted && challengeRecorded {
+                        Text("Reto registrado hoy. ¡Buen trabajo!")
+                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                            .foregroundColor(BraverTheme.success)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    } else if challengeAccepted {
                         HStack(spacing: 12) {
                             Button {
                                 streakService.registerChallengeCompleted()
                                 if let c = todayChallenge {
                                     historyService.record(challenge: c, status: .completed)
                                 }
+                                withAnimation(.spring(response: 0.3)) { challengeRecorded = true }
+                                UserDefaults.standard.set(Date(), forKey: "braver_challenge_recorded_date")
                                 showReflectionModal = true
                             } label: {
                                 Label("Ya lo hice", systemImage: "checkmark")
@@ -337,9 +381,12 @@ struct HoyView: View {
                             .buttonStyle(BraverPrimaryButton(color: BraverTheme.success))
 
                             Button("Lo intenté") {
+                                streakService.recordActivity()
                                 if let c = todayChallenge {
                                     historyService.record(challenge: c, status: .attempted)
                                 }
+                                withAnimation(.spring(response: 0.3)) { challengeRecorded = true }
+                                UserDefaults.standard.set(Date(), forKey: "braver_challenge_recorded_date")
                                 showReflectionModal = true
                             }
                             .buttonStyle(BraverGhostButton())
@@ -362,8 +409,8 @@ struct HoyView: View {
                         }
                     }
 
-                    if !challengeAccepted {
-                        Text("Completar esto suma 1 día a tu racha.")
+                    if !challengeAccepted && !challengeRecorded {
+                        Text("Completar esto suma 1 día a tu orbe.")
                             .font(.system(size: 12, design: .rounded))
                             .foregroundColor(BraverTheme.textTertiary)
                             .frame(maxWidth: .infinity, alignment: .center)
@@ -404,9 +451,7 @@ struct HoyView: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .lineSpacing(3)
 
-                Text("Toca para leer más →")
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
-                    .foregroundColor(BraverTheme.accent)
+
             }
             .padding(BraverTheme.cardPadding)
             .braverCard(elevated: true)

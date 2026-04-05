@@ -11,17 +11,44 @@ class StreakService: ObservableObject {
     @Published var streakDays: Int = 0
     @Published var orbProgressDays: Int = 0
     @Published var momentosBraver: Int = 0
+    /// Fechas de días con al menos una actividad (reto, momento o lección). Una por día.
+    @Published var activityDates: [Date] = []
 
-    private let streakKey       = "braver_streak_days"
-    private let orbKey          = "braver_orb_days"
-    private let lastOpenKey     = "braver_last_open_date"
-    private let lastCompleteKey = "braver_last_complete_date"
-    private let momentosKey     = "braver_momentos_braver"
+    private let streakKey        = "braver_streak_days"
+    private let orbKey           = "braver_orb_days"
+    private let lastOpenKey      = "braver_last_open_date"
+    private let lastCompleteKey  = "braver_last_complete_date"
+    private let momentosKey      = "braver_momentos_braver"
+    private let activityDatesKey = "braver_activity_dates"
 
     private init() {
         streakDays      = UserDefaults.standard.integer(forKey: streakKey)
         orbProgressDays = UserDefaults.standard.integer(forKey: orbKey)
         momentosBraver  = UserDefaults.standard.integer(forKey: momentosKey)
+        loadActivityDates()
+    }
+
+    // MARK: - Actividad general (para weekly dots en HoyView)
+
+    /// Registra hoy como día activo si no estaba ya marcado.
+    func recordActivity() {
+        let today = Calendar.current.startOfDay(for: Date())
+        guard !activityDates.contains(where: { Calendar.current.isDate($0, inSameDayAs: today) }) else { return }
+        activityDates.append(today)
+        saveActivityDates()
+    }
+
+    private func saveActivityDates() {
+        if let data = try? JSONEncoder().encode(activityDates) {
+            UserDefaults.standard.set(data, forKey: activityDatesKey)
+        }
+    }
+
+    private func loadActivityDates() {
+        guard let data = UserDefaults.standard.data(forKey: activityDatesKey),
+              let dates = try? JSONDecoder().decode([Date].self, from: data)
+        else { return }
+        activityDates = dates
     }
 
     // MARK: - Llamar al abrir la app
@@ -65,6 +92,7 @@ class StreakService: ObservableObject {
         orbProgressDays += 1
         defaults.set(orbProgressDays, forKey: orbKey)
         defaults.set(today, forKey: lastCompleteKey)
+        recordActivity()
     }
 
     // MARK: - Llamar al pulsar "Voy a por ello" en Braver
@@ -72,6 +100,7 @@ class StreakService: ObservableObject {
     func registerMomentoBraver() {
         momentosBraver += 1
         UserDefaults.standard.set(momentosBraver, forKey: momentosKey)
+        recordActivity()
     }
 
     // MARK: - Solo para debug/testing

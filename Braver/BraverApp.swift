@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UserNotifications
 
 @main
 struct BraverApp: App {
@@ -12,6 +13,13 @@ struct BraverApp: App {
                 if onboardingDone {
                     ContentView()
                         .preferredColorScheme(.dark)
+                        .onAppear {
+                            UNUserNotificationCenter.current().getNotificationSettings { settings in
+                                if settings.authorizationStatus == .authorized {
+                                    DispatchQueue.main.async { NotificationService.scheduleAll() }
+                                }
+                            }
+                        }
 
                     if showSplash {
                         SplashView {

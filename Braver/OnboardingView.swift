@@ -734,7 +734,10 @@ private struct NotificationsScreen: View {
 
             // Botones inferiores
             VStack(spacing: 14) {
-                Button(action: onContinue) {
+                Button {
+                    NotificationService.requestAndSchedule()
+                    onContinue()
+                } label: {
                     Text("Activar notificaciones")
                         .font(.system(size: 17, weight: .semibold, design: .rounded))
                         .foregroundColor(.white)

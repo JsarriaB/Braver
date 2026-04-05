@@ -108,8 +108,8 @@ struct ProgresoView: View {
         let frac  = min(CGFloat(days) / CGFloat(goal), 1.0)
         // 240° arc = 2/3 of circle, but as CGFloat to avoid integer division
         let arcSpan: CGFloat = 0.667
-        let stageName = BraverOrb.stageName(for: streakService.streakDays).uppercased()
-        let nextStage = BraverOrb.nextStageName(for: streakService.streakDays).uppercased()
+        let stageName = BraverOrb.stageName(for: streakService.orbProgressDays).uppercased()
+        let nextStage = BraverOrb.nextStageName(for: streakService.orbProgressDays).uppercased()
 
         // Teal colors matching home screen ambient
         let tealDark  = Color(hex: "0B7A8A")
@@ -266,6 +266,11 @@ struct ProgresoView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer()
+            Button("Registrar") {
+                showCheckIn = true
+            }
+            .font(.system(size: 13, weight: .semibold, design: .rounded))
+            .foregroundColor(BraverTheme.accent)
         }
         .padding(BraverTheme.cardPadding)
         .braverCard(elevated: true)
