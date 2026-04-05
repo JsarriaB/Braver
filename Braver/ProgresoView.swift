@@ -96,7 +96,6 @@ struct ProgresoView: View {
         VStack(spacing: BraverTheme.sectionSpacing) {
             streakRingCard
             statsRow
-            miedoVsRealidadCard
         }
         .padding(.horizontal, BraverTheme.screenPadding)
         .padding(.top, 16)
@@ -104,129 +103,126 @@ struct ProgresoView: View {
     }
 
     var streakRingCard: some View {
-        let goal = 90
-        let days = streakService.orbProgressDays
-        let fraction = min(Double(days) / Double(goal), 1.0)
+        let goal  = 90
+        let days  = streakService.orbProgressDays
+        let frac  = min(CGFloat(days) / CGFloat(goal), 1.0)
+        // 240° arc = 2/3 of circle, but as CGFloat to avoid integer division
+        let arcSpan: CGFloat = 0.667
         let stageName = BraverOrb.stageName(for: streakService.streakDays).uppercased()
         let nextStage = BraverOrb.nextStageName(for: streakService.streakDays).uppercased()
 
-        return VStack(spacing: 20) {
-            ZStack {
-                // Track arc (240°, starts bottom-left)
-                Circle()
-                    .trim(from: 0, to: 2/3)
-                    .stroke(BraverTheme.surfaceElevated, style: StrokeStyle(lineWidth: 14, lineCap: .round))
-                    .frame(width: 200, height: 200)
-                    .rotationEffect(.degrees(150))
+        // Teal colors matching home screen ambient
+        let tealDark  = Color(hex: "0B7A8A")
+        let tealMid   = Color(hex: "0E9090")
+        let tealLight = Color(hex: "14B8A6")
 
-                // Fill arc
-                Circle()
-                    .trim(from: 0, to: fraction * 2/3)
-                    .stroke(
-                        LinearGradient(
-                            colors: [BraverTheme.accent, BraverTheme.success],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        ),
-                        style: StrokeStyle(lineWidth: 14, lineCap: .round)
-                    )
-                    .frame(width: 200, height: 200)
-                    .rotationEffect(.degrees(150))
-                    .animation(.spring(response: 0.8, dampingFraction: 0.75), value: fraction)
+        return ZStack {
+            // Outer aura glow
+            Circle()
+                .fill(tealMid.opacity(0.18))
+                .frame(width: 240, height: 240)
+                .blur(radius: 28)
 
-                // Center content
-                VStack(spacing: 4) {
-                    Text("\(days)d")
-                        .font(.system(size: 52, weight: .heavy, design: .rounded))
-                        .foregroundColor(BraverTheme.textPrimary)
-                    Text(stageName)
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
-                        .foregroundColor(BraverTheme.accent)
-                        .kerning(1)
+            VStack(spacing: 20) {
+                ZStack {
+                    // Track (empty arc)
+                    Circle()
+                        .trim(from: 0, to: arcSpan)
+                        .stroke(
+                            Color(hex: "1A2535"),
+                            style: StrokeStyle(lineWidth: 16, lineCap: .round)
+                        )
+                        .frame(width: 190, height: 190)
+                        .rotationEffect(.degrees(150))
+
+                    // Fill arc — teal gradient
+                    Circle()
+                        .trim(from: 0, to: max(frac * arcSpan, frac > 0 ? 0.015 : 0))
+                        .stroke(
+                            LinearGradient(
+                                colors: [tealDark, tealMid, tealLight],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            ),
+                            style: StrokeStyle(lineWidth: 16, lineCap: .round)
+                        )
+                        .frame(width: 190, height: 190)
+                        .rotationEffect(.degrees(150))
+                        .shadow(color: tealMid.opacity(0.55), radius: 10, x: 0, y: 0)
+                        .animation(.spring(response: 0.8, dampingFraction: 0.75), value: frac)
+
+                    // Center text
+                    VStack(spacing: 3) {
+                        Text("\(days)d")
+                            .font(.system(size: 50, weight: .heavy, design: .rounded))
+                            .foregroundColor(BraverTheme.textPrimary)
+                        Text(stageName)
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .foregroundColor(tealLight)
+                            .kerning(1.5)
+                    }
+                    .offset(y: -6)
+
+                    // Next stage hint at arc bottom
+                    VStack {
+                        Spacer()
+                        Text("→ \(nextStage)")
+                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                            .foregroundColor(BraverTheme.textTertiary)
+                            .padding(.bottom, 6)
+                    }
+                    .frame(height: 190)
                 }
-                .offset(y: -8)
+                .frame(width: 190, height: 190)
 
-                // Next milestone label at bottom
-                VStack {
-                    Spacer()
-                    Text("→ \(nextStage)")
-                        .font(.system(size: 10, weight: .medium, design: .rounded))
-                        .foregroundColor(BraverTheme.textTertiary)
-                        .padding(.bottom, 10)
-                }
-                .frame(height: 200)
-            }
-            .frame(height: 200)
-
-            VStack(spacing: 4) {
                 Text(days >= goal
                      ? "¡Plan de 90 días completado!"
                      : "Faltan \(goal - days) días para el Braver completo")
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .font(.system(size: 13, weight: .medium, design: .rounded))
                     .foregroundColor(BraverTheme.textSecondary)
                     .multilineTextAlignment(.center)
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(BraverTheme.cardPadding)
-        .braverCard(elevated: true)
+        .padding(.vertical, 28)
+        .padding(.horizontal, BraverTheme.cardPadding)
+        .background(Color(hex: "080C14"))
+        .cornerRadius(BraverTheme.radiusLarge)
+        .overlay(
+            RoundedRectangle(cornerRadius: BraverTheme.radiusLarge)
+                .stroke(tealMid.opacity(0.2), lineWidth: 1)
+        )
     }
 
     var statsRow: some View {
-        HStack(spacing: 10) {
-            StatChip(value: "\(streakService.streakDays)",  label: "Días\nen racha",     color: BraverTheme.bravura)
-            StatChip(value: "\(totalCompleted)",            label: "Retos\ncompletados", color: BraverTheme.accent)
-            StatChip(value: "\(momentosValor)",             label: "Momentos\nBraver",   color: BraverTheme.success)
+        HStack(spacing: 0) {
+            statItem(value: "\(streakService.streakDays)", label: "Días racha", color: BraverTheme.bravura)
+            Divider()
+                .frame(width: 1, height: 36)
+                .background(Color.white.opacity(0.07))
+            statItem(value: "\(totalCompleted)", label: "Completados", color: BraverTheme.accent)
+            Divider()
+                .frame(width: 1, height: 36)
+                .background(Color.white.opacity(0.07))
+            statItem(value: "\(momentosValor)", label: "Momentos", color: BraverTheme.success)
         }
+        .padding(.vertical, 20)
+        .background(BraverTheme.surfaceElevated)
+        .cornerRadius(BraverTheme.radiusMedium)
     }
 
-    var miedoVsRealidadCard: some View {
-        let miedoVsRealidad = 68
-        return VStack(alignment: .leading, spacing: 14) {
-            SectionHeader(title: "Miedo vs Realidad")
-
-            VStack(spacing: 14) {
-                HStack(alignment: .bottom, spacing: 12) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("\(miedoVsRealidad)%")
-                            .font(.system(size: 36, weight: .heavy, design: .rounded))
-                            .foregroundColor(BraverTheme.bravura)
-                        Text("Tu cerebro exagera el peligro")
-                            .font(.system(size: 13, design: .rounded))
-                            .foregroundColor(BraverTheme.textSecondary)
-                    }
-                    Spacer()
-                    HStack(alignment: .bottom, spacing: 6) {
-                        VStack(spacing: 4) {
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(BraverTheme.danger.opacity(0.7))
-                                .frame(width: 28, height: 80)
-                            Text("Miedo")
-                                .font(.system(size: 10, design: .rounded))
-                                .foregroundColor(BraverTheme.textTertiary)
-                        }
-                        VStack(spacing: 4) {
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(BraverTheme.success.opacity(0.7))
-                                .frame(width: 28, height: 80 * (1 - Double(miedoVsRealidad) / 100))
-                            Text("Real")
-                                .font(.system(size: 10, design: .rounded))
-                                .foregroundColor(BraverTheme.textTertiary)
-                        }
-                    }
-                }
-
-                Divider().background(BraverTheme.surfaceBorder)
-
-                Text("En promedio, tu ansiedad real es un **\(miedoVsRealidad)% menor** que la que anticipas. Este número bajará con el tiempo.")
-                    .font(.system(size: 13, design: .rounded))
-                    .foregroundColor(BraverTheme.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .padding(BraverTheme.cardPadding)
-            .braverCard(elevated: true)
+    func statItem(value: String, label: String, color: Color) -> some View {
+        VStack(spacing: 4) {
+            Text(value)
+                .font(.system(size: 26, weight: .bold, design: .rounded))
+                .foregroundColor(color)
+            Text(label)
+                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .foregroundColor(BraverTheme.textTertiary)
         }
+        .frame(maxWidth: .infinity)
     }
+
 
     // MARK: ── TAB 1: RETOS ──
 

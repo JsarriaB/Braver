@@ -8,7 +8,7 @@ struct LearningModule: Identifiable {
     let id: String
     let title: String
     let subtitle: String
-    let emoji: String
+    let symbol: String      // SF Symbol name
     let colorHex: String
     let lessons: [Lesson]
 
@@ -33,18 +33,35 @@ struct NovaMessage: Identifiable {
     let isUser: Bool
 }
 
-// MARK: - Lesson Progress
+// MARK: - Lesson Progress (1 per day, no accumulation)
 
 class GuiaProgress: ObservableObject {
     static let shared = GuiaProgress()
 
-    private let key = "braver_completed_lessons"
+    private let completedKey  = "braver_completed_lessons"
+    private let lastDoneKey   = "braver_last_lesson_date"
+
     @Published var completedIds: Set<String> = []
+    private var lastLessonDate: Date?
 
     private init() { load() }
 
+    // Has the user already completed a lesson today?
+    var hasCompletedLessonToday: Bool {
+        guard let date = lastLessonDate else { return false }
+        return Calendar.current.isDateInToday(date)
+    }
+
+    // Can the user mark this lesson complete right now?
+    func canComplete(_ id: String) -> Bool {
+        if completedIds.contains(id) { return false }   // already done
+        return !hasCompletedLessonToday                 // not used today's slot
+    }
+
     func markCompleted(_ id: String) {
+        guard canComplete(id) else { return }
         completedIds.insert(id)
+        lastLessonDate = Date()
         save()
     }
 
@@ -56,16 +73,20 @@ class GuiaProgress: ObservableObject {
         module.lessons.filter { completedIds.contains($0.id) }.count
     }
 
+    // MARK: Persistence
+
     private func save() {
         if let data = try? JSONEncoder().encode(Array(completedIds)) {
-            UserDefaults.standard.set(data, forKey: key)
+            UserDefaults.standard.set(data, forKey: completedKey)
         }
+        UserDefaults.standard.set(lastLessonDate, forKey: lastDoneKey)
     }
 
     private func load() {
-        guard let data = UserDefaults.standard.data(forKey: key),
-              let ids = try? JSONDecoder().decode([String].self, from: data)
-        else { return }
-        completedIds = Set(ids)
+        if let data = UserDefaults.standard.data(forKey: completedKey),
+           let ids = try? JSONDecoder().decode([String].self, from: data) {
+            completedIds = Set(ids)
+        }
+        lastLessonDate = UserDefaults.standard.object(forKey: lastDoneKey) as? Date
     }
 }

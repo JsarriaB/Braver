@@ -81,11 +81,67 @@ struct GuiaView: View {
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
+
+                miedoVsRealidadCard
+                    .padding(.top, 8)
             }
             .padding(.horizontal, BraverTheme.screenPadding)
             .padding(.top, 16)
             .padding(.bottom, 100)
         }
+    }
+
+    var miedoVsRealidadCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 10) {
+                Image(systemName: "brain.head.profile")
+                    .font(.system(size: 14))
+                    .foregroundColor(BraverTheme.accent)
+                Text("Miedo vs Realidad")
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .foregroundColor(BraverTheme.textPrimary)
+            }
+
+            HStack(alignment: .bottom, spacing: 16) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("68%")
+                        .font(.system(size: 40, weight: .heavy, design: .rounded))
+                        .foregroundColor(BraverTheme.bravura)
+                    Text("Tu cerebro exagera\nel peligro social")
+                        .font(.system(size: 13, design: .rounded))
+                        .foregroundColor(BraverTheme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer()
+                HStack(alignment: .bottom, spacing: 8) {
+                    VStack(spacing: 4) {
+                        RoundedRectangle(cornerRadius: 5)
+                            .fill(BraverTheme.danger.opacity(0.7))
+                            .frame(width: 32, height: 88)
+                        Text("Miedo")
+                            .font(.system(size: 10, design: .rounded))
+                            .foregroundColor(BraverTheme.textTertiary)
+                    }
+                    VStack(spacing: 4) {
+                        RoundedRectangle(cornerRadius: 5)
+                            .fill(BraverTheme.success.opacity(0.8))
+                            .frame(width: 32, height: 88 * 0.32)
+                        Text("Real")
+                            .font(.system(size: 10, design: .rounded))
+                            .foregroundColor(BraverTheme.textTertiary)
+                    }
+                }
+            }
+
+            Divider().background(BraverTheme.surfaceBorder)
+
+            Text("En promedio, la ansiedad real es un **68% menor** que la anticipada. Este número bajará con la práctica.")
+                .font(.system(size: 13, design: .rounded))
+                .foregroundColor(BraverTheme.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(BraverTheme.cardPadding)
+        .braverCard(elevated: true)
     }
 }
 
@@ -99,31 +155,33 @@ struct ModuleCard: View {
     var progressFraction: Double { Double(completedCount) / Double(module.lessonCount) }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 14) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(module.color.opacity(0.15))
-                        .frame(width: 52, height: 52)
-                    Text(module.emoji)
-                        .font(.system(size: 26))
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(module.color.opacity(0.12))
+                        .frame(width: 50, height: 50)
+                    Image(systemName: module.symbol)
+                        .font(.system(size: 22, weight: .medium))
+                        .foregroundColor(module.color)
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(module.title)
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundColor(BraverTheme.textPrimary)
                         .multilineTextAlignment(.leading)
                     Text(module.subtitle)
-                        .font(.system(size: 13, design: .rounded))
+                        .font(.system(size: 12, design: .rounded))
                         .foregroundColor(BraverTheme.textSecondary)
                         .multilineTextAlignment(.leading)
+                        .lineLimit(2)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(BraverTheme.textTertiary)
             }
 
@@ -144,23 +202,23 @@ struct ModuleCard: View {
                         .foregroundColor(BraverTheme.success)
                     }
                 }
-
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(BraverTheme.surfaceBorder)
-                            .frame(height: 4)
+                            .fill(Color.white.opacity(0.06))
+                            .frame(height: 3)
                         RoundedRectangle(cornerRadius: 3)
                             .fill(module.color)
-                            .frame(width: geo.size.width * progressFraction, height: 4)
+                            .frame(width: geo.size.width * progressFraction, height: 3)
                             .animation(.spring(response: 0.4), value: progressFraction)
                     }
                 }
-                .frame(height: 4)
+                .frame(height: 3)
             }
         }
         .padding(BraverTheme.cardPadding)
-        .braverCard(elevated: true)
+        .background(BraverTheme.surfaceElevated)
+        .cornerRadius(BraverTheme.radiusMedium)
     }
 }
 
@@ -178,10 +236,11 @@ struct ModuleDetailView: View {
                     HStack(spacing: 14) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 14)
-                                .fill(module.color.opacity(0.15))
+                                .fill(module.color.opacity(0.12))
                                 .frame(width: 60, height: 60)
-                            Text(module.emoji)
-                                .font(.system(size: 30))
+                            Image(systemName: module.symbol)
+                                .font(.system(size: 26, weight: .medium))
+                                .foregroundColor(module.color)
                         }
                         VStack(alignment: .leading, spacing: 4) {
                             Text(module.title)
@@ -344,18 +403,37 @@ struct LessonDetailView: View {
                 .braverCard(elevated: true)
 
                 // Mark complete button
-                Button {
-                    if !isCompleted {
-                        progress.markCompleted(lesson.id)
+                if isCompleted {
+                    Label("Lección completada", systemImage: "checkmark.circle.fill")
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .foregroundColor(BraverTheme.success)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(BraverTheme.success.opacity(0.1))
+                        .cornerRadius(BraverTheme.radiusPill)
+                } else if progress.hasCompletedLessonToday {
+                    VStack(spacing: 8) {
+                        Label("Vuelve mañana", systemImage: "moon.zzz.fill")
+                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .foregroundColor(BraverTheme.textTertiary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(BraverTheme.surfaceElevated)
+                            .cornerRadius(BraverTheme.radiusPill)
+                        Text("Solo 1 lección por día. Vuelve mañana para continuar.")
+                            .font(.system(size: 12, design: .rounded))
+                            .foregroundColor(BraverTheme.textTertiary)
+                            .multilineTextAlignment(.center)
                     }
-                } label: {
-                    Label(
-                        isCompleted ? "Lección completada" : "Marcar como leída",
-                        systemImage: isCompleted ? "checkmark.circle.fill" : "circle"
-                    )
+                } else {
+                    Button {
+                        progress.markCompleted(lesson.id)
+                    } label: {
+                        Label("Marcar como leída", systemImage: "checkmark.circle")
+                    }
+                    .buttonStyle(BraverPrimaryButton(color: moduleColor))
                 }
-                .buttonStyle(BraverPrimaryButton(color: isCompleted ? BraverTheme.success : moduleColor))
-                .padding(.top, 4)
+                Spacer().frame(height: 4)
             }
             .padding(.horizontal, BraverTheme.screenPadding)
             .padding(.top, 20)

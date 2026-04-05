@@ -12,7 +12,7 @@ enum GuiaContent {
         id: "m1",
         title: "Entender tu vergüenza",
         subtitle: "Qué te pasa y por qué te pasa.",
-        emoji: "🧠",
+        symbol: "brain.head.profile",
         colorHex: "4C9EEB",
         lessons: [
             Lesson(
@@ -120,7 +120,7 @@ Estos cuatro elementos forman un círculo que se alimenta a sí mismo. La buena 
         id: "m2",
         title: "La trampa de la evitación",
         subtitle: "Por qué evitar te da alivio corto pero te empeora a largo plazo.",
-        emoji: "🚪",
+        symbol: "arrow.uturn.backward.circle",
         colorHex: "F97316",
         lessons: [
             Lesson(
@@ -222,7 +222,7 @@ Hay algo más: cada vez que evitas algo, te estás diciendo a ti mismo "soy algu
         id: "m3",
         title: "Calmar tu mente y tu cuerpo",
         subtitle: "Herramientas reales para gestionar la ansiedad cuando llega.",
-        emoji: "🫁",
+        symbol: "lungs.fill",
         colorHex: "10B981",
         lessons: [
             Lesson(
@@ -335,7 +335,7 @@ La ansiedad sigue una curva natural: sube, llega a un pico, y luego baja por sí
         id: "m4",
         title: "Exponerte y ganar terreno",
         subtitle: "Pasar a la acción con una estrategia que funciona.",
-        emoji: "🏆",
+        symbol: "figure.walk.motion",
         colorHex: "F59E0B",
         lessons: [
             Lesson(
