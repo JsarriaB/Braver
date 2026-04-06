@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyBfbKRvz8uu_NXKePq0pk7HuQxwdLZo2PI</string>
+	<key>GCM_SENDER_ID</key>
+	<string>773430181764</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.jorgesarria.Braver</string>
+	<key>PROJECT_ID</key>
+	<string>braver-4d2bc</string>
+	<key>STORAGE_BUCKET</key>
+	<string>braver-4d2bc.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:773430181764:ios:4a3075b0a2e5a0809a67d1</string>
+</dict>
+</plist>
