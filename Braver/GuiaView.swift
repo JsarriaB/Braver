@@ -448,8 +448,10 @@ struct LessonDetailView: View {
 // MARK: - Nova Chat View
 
 struct NovaView: View {
+    @StateObject private var service = NovaService.shared
     @State private var messages: [NovaMessage] = []
     @State private var inputText = ""
+    @State private var errorText: String? = nil
     @FocusState private var isInputFocused: Bool
 
     let suggestions = [
@@ -535,6 +537,24 @@ struct NovaView: View {
                         ChatBubble(message: message)
                             .id(message.id)
                     }
+                    if service.isLoading {
+                        HStack(spacing: 8) {
+                            Text("✨")
+                                .font(.system(size: 20))
+                            ProgressView()
+                                .tint(BraverTheme.accent)
+                            Spacer()
+                        }
+                        .padding(.horizontal, BraverTheme.screenPadding)
+                        .id("loading")
+                    }
+                    if let error = errorText {
+                        Text(error)
+                            .font(.system(size: 13, design: .rounded))
+                            .foregroundColor(BraverTheme.warning)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.horizontal, BraverTheme.screenPadding)
+                    }
                 }
                 .padding(.horizontal, BraverTheme.screenPadding)
                 .padding(.top, 16)
@@ -543,6 +563,11 @@ struct NovaView: View {
             .onChange(of: messages.count) { _ in
                 withAnimation {
                     proxy.scrollTo(messages.last?.id, anchor: .bottom)
+                }
+            }
+            .onChange(of: service.isLoading) { loading in
+                if loading {
+                    withAnimation { proxy.scrollTo("loading", anchor: .bottom) }
                 }
             }
         }
@@ -585,15 +610,21 @@ struct NovaView: View {
 
     func sendMessage(_ text: String) {
         guard !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        guard !service.isLoading else { return }
         let userMsg = NovaMessage(text: text, isUser: true)
         withAnimation { messages.append(userMsg) }
         inputText = ""
         isInputFocused = false
+        errorText = nil
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-            let reply = NovaResponse.generate(for: text)
-            let novaMsg = NovaMessage(text: reply, isUser: false)
-            withAnimation { messages.append(novaMsg) }
+        Task {
+            do {
+                let reply = try await service.send(history: messages, userText: text)
+                let novaMsg = NovaMessage(text: reply, isUser: false)
+                withAnimation { messages.append(novaMsg) }
+            } catch {
+                errorText = error.localizedDescription
+            }
         }
     }
 }

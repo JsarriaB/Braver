@@ -1,11 +1,28 @@
 import SwiftUI
 import SwiftData
 import UserNotifications
+import FirebaseCore
+import FirebaseAppCheck
+
+final class BraverAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
+    func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
+        if #available(iOS 14.0, *) {
+            return AppAttestProvider(app: app)
+        } else {
+            return DeviceCheckProvider(app: app)
+        }
+    }
+}
 
 @main
 struct BraverApp: App {
     @State private var showSplash = true
     @State private var onboardingDone = UserDefaults.standard.bool(forKey: "braver_onboarding_completed")
+
+    init() {
+        AppCheck.setAppCheckProviderFactory(BraverAppCheckProviderFactory())
+        FirebaseApp.configure()
+    }
 
     var body: some Scene {
         WindowGroup {
