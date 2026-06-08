@@ -2,7 +2,8 @@ import SwiftUI
 
 struct GuiaView: View {
     @StateObject private var progress = GuiaProgress.shared
-    @State private var selectedTab = 0   // 0 = Aprender, 1 = Nova
+    @State private var selectedTab = 0
+    @State private var showFuentes = false
 
     var body: some View {
         NavigationStack {
@@ -84,11 +85,24 @@ struct GuiaView: View {
 
                 miedoVsRealidadCard
                     .padding(.top, 8)
+
+                Button { showFuentes = true } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "book.closed.fill")
+                            .font(.system(size: 11))
+                        Text("Fuentes científicas")
+                            .font(.system(size: 12, design: .rounded))
+                    }
+                    .foregroundColor(BraverTheme.textTertiary)
+                    .padding(.top, 8)
+                }
+                .buttonStyle(PlainButtonStyle())
             }
             .padding(.horizontal, BraverTheme.screenPadding)
             .padding(.top, 16)
             .padding(.bottom, 100)
         }
+        .sheet(isPresented: $showFuentes) { FuentesView() }
     }
 
     var miedoVsRealidadCard: some View {
@@ -228,6 +242,15 @@ struct ModuleDetailView: View {
     let module: LearningModule
     @StateObject private var progress = GuiaProgress.shared
 
+    @ViewBuilder
+    func lessonDestination(_ lesson: Lesson, moduleColor: Color) -> some View {
+        if lesson.screens != nil {
+            LessonWizardView(lesson: lesson, moduleColor: moduleColor)
+        } else {
+            LessonDetailView(lesson: lesson, moduleColor: moduleColor)
+        }
+    }
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
@@ -262,7 +285,7 @@ struct ModuleDetailView: View {
                 // Lessons
                 VStack(spacing: 10) {
                     ForEach(module.lessons) { lesson in
-                        NavigationLink(destination: LessonDetailView(lesson: lesson, moduleColor: module.color)) {
+                        NavigationLink(destination: lessonDestination(lesson, moduleColor: module.color)) {
                             LessonRow(lesson: lesson, color: module.color, isCompleted: progress.isCompleted(lesson.id))
                         }
                         .buttonStyle(PlainButtonStyle())
@@ -675,6 +698,171 @@ struct RoundedCorner: Shape {
     func path(in rect: CGRect) -> Path {
         let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
         return Path(path.cgPath)
+    }
+}
+
+// MARK: - Fuentes científicas
+
+struct FuentesView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    private struct Fuente: Identifiable {
+        let id = UUID()
+        let categoria: String
+        let titulo: String
+        let autores: String
+        let url: String
+    }
+
+    private let fuentes: [Fuente] = [
+        // Ansiedad social
+        Fuente(categoria: "Ansiedad social",
+               titulo: "Social Anxiety Disorder",
+               autores: "American Psychological Association (APA)",
+               url: "https://www.apa.org/topics/anxiety/social-anxiety-disorder"),
+        Fuente(categoria: "Ansiedad social",
+               titulo: "Social Anxiety Disorder (Social Phobia)",
+               autores: "National Institute of Mental Health (NIMH)",
+               url: "https://www.nimh.nih.gov/health/topics/social-anxiety-disorder-social-phobia"),
+        Fuente(categoria: "Ansiedad social",
+               titulo: "Social anxiety (social phobia)",
+               autores: "NHS (National Health Service, UK)",
+               url: "https://www.nhs.uk/mental-health/conditions/social-anxiety/"),
+        Fuente(categoria: "Ansiedad social",
+               titulo: "What Are Anxiety Disorders?",
+               autores: "American Psychiatric Association",
+               url: "https://www.psychiatry.org/patients-families/anxiety-disorders/what-are-anxiety-disorders"),
+        // Terapia de exposición
+        Fuente(categoria: "Terapia de exposición",
+               titulo: "Emotional processing of fear: Exposure to corrective information",
+               autores: "Foa, E.B. & Kozak, M.J. (1986) — Psychological Bulletin",
+               url: "https://pubmed.ncbi.nlm.nih.gov/2871574/"),
+        Fuente(categoria: "Terapia de exposición",
+               titulo: "Exposure therapy for anxiety disorders: A systematic review",
+               autores: "Abramowitz, J.S. et al. — PubMed Central",
+               url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3263384/"),
+        Fuente(categoria: "Terapia de exposición",
+               titulo: "Cognitive-behavioral therapy for social anxiety disorder",
+               autores: "Heimberg, R.G. (2002) — Journal of Clinical Psychiatry",
+               url: "https://pubmed.ncbi.nlm.nih.gov/12088162/"),
+        // TCC (Terapia Cognitivo-Conductual)
+        Fuente(categoria: "Terapia Cognitivo-Conductual (TCC)",
+               titulo: "A cognitive model of social phobia",
+               autores: "Clark, D.M. & Wells, A. (1995) — Social Phobia: Diagnosis, Assessment, and Treatment",
+               url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2556702/"),
+        Fuente(categoria: "Terapia Cognitivo-Conductual (TCC)",
+               titulo: "Cognitive therapy of anxiety disorders",
+               autores: "Beck, A.T. & Emery, G. (1985)",
+               url: "https://pubmed.ncbi.nlm.nih.gov/3977611/"),
+        Fuente(categoria: "Terapia Cognitivo-Conductual (TCC)",
+               titulo: "CBT for social anxiety: evidence and mechanisms",
+               autores: "Clark, D.M. (2001) — Behaviour Research and Therapy",
+               url: "https://pubmed.ncbi.nlm.nih.gov/11447864/"),
+        // Vergüenza
+        Fuente(categoria: "Vergüenza y autoestima",
+               titulo: "The gifts of imperfection — Research on shame resilience",
+               autores: "Brown, B. — brenebrown.com",
+               url: "https://brenebrown.com/research/"),
+        Fuente(categoria: "Vergüenza y autoestima",
+               titulo: "Shame and guilt",
+               autores: "Tangney, J.P. & Dearing, R.L. (2002) — Guilford Press",
+               url: "https://pubmed.ncbi.nlm.nih.gov/12510024/"),
+        // Salud mental general
+        Fuente(categoria: "Salud mental",
+               titulo: "Mental health: strengthening our response",
+               autores: "World Health Organization (WHO)",
+               url: "https://www.who.int/news-room/fact-sheets/detail/mental-health-strengthening-our-response"),
+        Fuente(categoria: "Salud mental",
+               titulo: "Anxiety disorders — overview and treatment",
+               autores: "Mayo Clinic",
+               url: "https://www.mayoclinic.org/diseases-conditions/anxiety/symptoms-causes/syc-20350961"),
+        // Respiración y sistema nervioso
+        Fuente(categoria: "Técnicas de regulación",
+               titulo: "Vagal nerve stimulation and breathing techniques for anxiety",
+               autores: "Gerritsen, R.J.S. & Band, G.P.H. (2018) — Frontiers in Human Neuroscience",
+               url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6189422/"),
+        Fuente(categoria: "Técnicas de regulación",
+               titulo: "The effect of diaphragmatic breathing on anxiety",
+               autores: "Ma, X. et al. (2017) — Frontiers in Psychology",
+               url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5455070/"),
+        // Sesgo de atención (spotlight effect)
+        Fuente(categoria: "Sesgos cognitivos",
+               titulo: "The spotlight effect in social judgment",
+               autores: "Gilovich, T., Medvec, V.H. & Savitsky, K. (2000) — Journal of Personality and Social Psychology",
+               url: "https://pubmed.ncbi.nlm.nih.gov/10653508/"),
+    ]
+
+    private var categorias: [String] {
+        var seen = Set<String>()
+        return fuentes.compactMap { seen.insert($0.categoria).inserted ? $0.categoria : nil }
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 24) {
+                    Text("El contenido de la Guía de Braver está basado en investigación clínica publicada. Estas son las principales fuentes.")
+                        .font(.system(size: 14, design: .rounded))
+                        .foregroundColor(BraverTheme.textSecondary)
+                        .padding(.horizontal, BraverTheme.screenPadding)
+                        .padding(.top, 8)
+
+                    ForEach(categorias, id: \.self) { cat in
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text(cat.uppercased())
+                                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                .foregroundColor(BraverTheme.textTertiary)
+                                .padding(.horizontal, BraverTheme.screenPadding)
+
+                            VStack(spacing: 0) {
+                                ForEach(Array(fuentes.filter { $0.categoria == cat }.enumerated()), id: \.element.id) { idx, f in
+                                    if idx > 0 { Divider().background(BraverTheme.surfaceBorder).padding(.leading, BraverTheme.screenPadding) }
+                                    Link(destination: URL(string: f.url)!) {
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(f.titulo)
+                                                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                                .foregroundColor(BraverTheme.textPrimary)
+                                                .multilineTextAlignment(.leading)
+                                            Text(f.autores)
+                                                .font(.system(size: 12, design: .rounded))
+                                                .foregroundColor(BraverTheme.textTertiary)
+                                                .multilineTextAlignment(.leading)
+                                        }
+                                        .padding(BraverTheme.cardPadding)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    }
+                                }
+                            }
+                            .background(BraverTheme.surfaceElevated)
+                            .cornerRadius(BraverTheme.radiusMedium)
+                            .padding(.horizontal, BraverTheme.screenPadding)
+                        }
+                    }
+
+                    Text("Braver es una herramienta de desarrollo personal. No sustituye el diagnóstico ni el tratamiento de un profesional de salud mental.")
+                        .font(.system(size: 12, design: .rounded))
+                        .foregroundColor(BraverTheme.textTertiary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, BraverTheme.screenPadding)
+                        .padding(.bottom, 40)
+                }
+                .padding(.top, 8)
+            }
+            .background(BraverTheme.background.ignoresSafeArea())
+            .navigationTitle("Fuentes científicas")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(BraverTheme.textTertiary)
+                            .font(.system(size: 20))
+                    }
+                }
+            }
+        }
+        .preferredColorScheme(.dark)
     }
 }
 

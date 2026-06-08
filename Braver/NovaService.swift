@@ -1,7 +1,7 @@
 import Foundation
 import Combine
+import FirebaseAuth
 import FirebaseAppCheck
-import FirebaseInstallations
 
 // MARK: - Error
 
@@ -48,25 +48,65 @@ class NovaService: ObservableObject {
     - Nunca des diagnósticos médicos ni reemplaces la ayuda de un profesional.
     """
 
+    private static let preparateSystemPrompt = """
+    Eres Nova, coach de ansiedad social dentro de Braver. El usuario va a enfrentarse a una \
+    situación social ahora mismo y necesita preparación concreta, no consuelo vacío.
+
+    Reglas:
+    - Primera respuesta: máximo 120 palabras. Sin encabezados ni numeración visible.
+    - Estructura: 1 frase reconociendo la situación específica / 2-3 pasos muy concretos para \
+    ese momento exacto / 1 frase de reencuadre basado en evidencia.
+    - Chat de seguimiento: máximo 4 líneas. Siempre orientadas a la acción, nunca a consolar.
+    - Tono: coaching directo, no terapéutico. Nada de positividad tóxica.
+    - Habla siempre en español.
+    - Nunca des diagnósticos ni reemplaces ayuda profesional.
+    """
+
     private init() {}
 
-    // MARK: - Enviar a Firebase Function
+    // MARK: - Chat estándar (Nova tab)
 
     func send(history: [NovaMessage], userText: String) async throws -> String {
-        isLoading = true
-        defer { isLoading = false }
-
-        var messages: [[String: String]] = [
-            ["role": "system", "content": Self.systemPrompt]
-        ]
+        var messages: [[String: String]] = [["role": "system", "content": Self.systemPrompt]]
         for msg in history.suffix(12) {
             messages.append(["role": msg.isUser ? "user" : "assistant", "content": msg.text])
         }
         messages.append(["role": "user", "content": userText])
+        return try await makeRequest(messages: messages)
+    }
+
+    // MARK: - Modo Prepárate
+
+    func prepararSituacion(situacion: String, preocupacion: String, suds: Int, contexto: String) async throws -> String {
+        let userText = """
+        Situación: \(situacion)
+        Principal preocupación: \(preocupacion)
+        SUDS ahora mismo: \(suds)/100\(contexto.isEmpty ? "" : "\nContexto extra: \(contexto)")
+        """
+        let messages: [[String: String]] = [
+            ["role": "system", "content": Self.preparateSystemPrompt],
+            ["role": "user", "content": userText]
+        ]
+        return try await makeRequest(messages: messages)
+    }
+
+    func seguirPreparando(history: [NovaMessage], userText: String) async throws -> String {
+        var messages: [[String: String]] = [["role": "system", "content": Self.preparateSystemPrompt]]
+        for msg in history {
+            messages.append(["role": msg.isUser ? "user" : "assistant", "content": msg.text])
+        }
+        messages.append(["role": "user", "content": userText])
+        return try await makeRequest(messages: messages)
+    }
+
+    // MARK: - Network
+
+    private func makeRequest(messages: [[String: String]]) async throws -> String {
+        isLoading = true
+        defer { isLoading = false }
 
         let body: [String: Any] = ["messages": messages]
-
-        var request = URLRequest(url: functionURL)
+        var request = URLRequest(url: functionURL, timeoutInterval: 30)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
@@ -74,36 +114,28 @@ class NovaService: ObservableObject {
         let appCheckToken = try await AppCheck.appCheck().token(forcingRefresh: false)
         request.setValue(appCheckToken.token, forHTTPHeaderField: "X-Firebase-AppCheck")
 
-        let installationID = try await Installations.installations().installationID()
-        request.setValue(installationID, forHTTPHeaderField: "X-Installation-ID")
+        let uid = Auth.auth().currentUser?.uid ?? "anonymous"
+        request.setValue(uid, forHTTPHeaderField: "X-Firebase-UID")
 
         let (data, response) = try await URLSession.shared.data(for: request)
 
         if let http = response as? HTTPURLResponse, http.statusCode == 429 {
             throw NovaError.dailyLimitReached
         }
-
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            let code = (response as? HTTPURLResponse)?.statusCode ?? 0
-            throw NovaError.apiError("HTTP \(code)")
+            throw NovaError.apiError("HTTP \((response as? HTTPURLResponse)?.statusCode ?? 0)")
         }
-
-        // Comprobar también si la respuesta JSON contiene DAILY_LIMIT_REACHED
         if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-           let errorMsg = json["error"] as? String,
-           errorMsg == "DAILY_LIMIT_REACHED" {
+           let err = json["error"] as? String, err == "DAILY_LIMIT_REACHED" {
             throw NovaError.dailyLimitReached
         }
-
         guard
             let json    = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
             let choices = json["choices"] as? [[String: Any]],
             let first   = choices.first,
             let message = first["message"] as? [String: Any],
             let content = message["content"] as? String
-        else {
-            throw NovaError.apiError("Respuesta inesperada")
-        }
+        else { throw NovaError.apiError("Respuesta inesperada") }
 
         return content.trimmingCharacters(in: .whitespacesAndNewlines)
     }

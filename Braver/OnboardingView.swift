@@ -1,6 +1,7 @@
 import SwiftUI
 import StoreKit
 import UserNotifications
+import SuperwallKit
 
 // MARK: - OnboardingView
 
@@ -11,6 +12,7 @@ struct OnboardingView: View {
     @State private var userName: String = ""
     @State private var userAge: String = ""
     @State private var q3selected: Set<Int> = []   // índices seleccionados para categorías de miedo
+    @State private var showLoginSheet = false
 
     // Respuestas
     @State private var q1answer: Int? = nil   // género
@@ -53,9 +55,10 @@ struct OnboardingView: View {
 
             switch step {
             case 0:
-                WelcomeScreen(onStart: {
-                    withAnimation(.easeInOut(duration: 0.45)) { step = 1 }
-                })
+                WelcomeScreen(
+                    onStart: { withAnimation(.easeInOut(duration: 0.45)) { step = 1 } },
+                    onAlreadyHaveAccount: { showLoginSheet = true }
+                )
                 .transition(.opacity)
 
             case 1:
@@ -314,19 +317,32 @@ struct OnboardingView: View {
                 .transition(.opacity)
 
             case 21:
-                NotificationsScreen(
-                    onBack: { withAnimation(.easeInOut(duration: 0.3)) { step = 20 } },
+                LegalAcceptanceScreen(
                     onContinue: { withAnimation(.easeInOut(duration: 0.45)) { step = 22 } }
                 )
                 .transition(.opacity)
 
             case 22:
-                BraverCardRevealScreen(
+                NotificationsScreen(
+                    onBack: { withAnimation(.easeInOut(duration: 0.3)) { step = 21 } },
                     onContinue: { withAnimation(.easeInOut(duration: 0.45)) { step = 23 } }
                 )
                 .transition(.opacity)
 
             case 23:
+                BraverCardRevealScreen(
+                    onContinue: { withAnimation(.easeInOut(duration: 0.45)) { step = 24 } }
+                )
+                .transition(.opacity)
+
+            case 24:
+                AccountCreationScreen(
+                    onContinue: { withAnimation(.easeInOut(duration: 0.45)) { step = 25 } },
+                    onBack: { withAnimation(.easeInOut(duration: 0.3)) { step = 23 } }
+                )
+                .transition(.opacity)
+
+            case 25:
                 PaywallScreen(onStart: {
                     saveAndComplete()
                 })
@@ -338,6 +354,17 @@ struct OnboardingView: View {
             }
         }
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $showLoginSheet) {
+            AccountCreationScreen(
+                mode: .login,
+                onContinue: {
+                    showLoginSheet = false
+                    saveAndComplete()
+                },
+                onBack: { showLoginSheet = false }
+            )
+            .preferredColorScheme(.dark)
+        }
     }
 
     private func saveFearCategories() {
@@ -360,8 +387,31 @@ struct OnboardingView: View {
         if !ageTrimmed.isEmpty {
             UserDefaults.standard.set(ageTrimmed, forKey: "braver_user_age")
         }
-        UserDefaults.standard.set(true, forKey: "braver_onboarding_completed")
-        onCompleted()
+        let handler = PaywallPresentationHandler()
+        handler.onDismiss { _, result in
+            print("🟡 campaign_trigger dismissed with result:", result)
+            Task { @MainActor in
+                guard case .declined = result else {
+                    print("🟡 No special offer — result is not declined")
+                    return
+                }
+                print("🟢 campaign_trigger declined, launching special offer in 0.5s")
+                try? await Task.sleep(for: .milliseconds(500))
+                sharedSuperwallDelegate.launchSpecialOffer()
+            }
+        }
+        Superwall.shared.register(placement: "campaign_trigger", handler: handler) {
+            guard case .active = Superwall.shared.subscriptionStatus else { return }
+            UserDefaults.standard.set(true, forKey: "braver_onboarding_completed")
+            Task {
+                await UserService.shared.createOrUpdateProfile(
+                    name: UserDefaults.standard.string(forKey: "braver_user_name"),
+                    age: UserDefaults.standard.string(forKey: "braver_user_age")
+                )
+                await UserService.shared.markOnboardingComplete()
+            }
+            onCompleted()
+        }
     }
 }
 
@@ -760,6 +810,106 @@ private struct NotificationsScreen: View {
 
 }
 
+// MARK: - Legal Acceptance Screen (Step 21)
+
+private struct LegalAcceptanceScreen: View {
+    let onContinue: () -> Void
+    @Environment(\.openURL) private var openURL
+
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            Color(hex: "050507").ignoresSafeArea()
+
+            VStack(alignment: .leading, spacing: 0) {
+                Spacer().frame(height: 60)
+
+                Image(systemName: "lock.shield.fill")
+                    .font(.system(size: 48))
+                    .foregroundColor(BraverTheme.accent)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 20)
+
+                Text("Tu privacidad,\nprimero")
+                    .font(.system(size: 38, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                    .lineSpacing(4)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 16)
+
+                Text("Antes de continuar, te pedimos que leas y aceptes nuestros documentos legales.")
+                    .font(.system(size: 17, weight: .regular, design: .rounded))
+                    .foregroundColor(Color(hex: "94A3B8"))
+                    .lineSpacing(4)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 32)
+
+                VStack(spacing: 12) {
+                    Button {
+                        if let url = URL(string: "https://jsarriab.github.io/braver/terms") {
+                            openURL(url)
+                        }
+                    } label: {
+                        HStack {
+                            Image(systemName: "doc.text")
+                                .foregroundColor(BraverTheme.accent)
+                            Text("Términos y Condiciones")
+                                .font(.system(size: 16, weight: .medium, design: .rounded))
+                                .foregroundColor(.white)
+                            Spacer()
+                            Image(systemName: "arrow.up.right")
+                                .font(.system(size: 14))
+                                .foregroundColor(Color(hex: "64748B"))
+                        }
+                        .padding(16)
+                        .background(Color.white.opacity(0.06))
+                        .cornerRadius(12)
+                    }
+
+                    Button {
+                        if let url = URL(string: "https://jsarriab.github.io/braver/privacy") {
+                            openURL(url)
+                        }
+                    } label: {
+                        HStack {
+                            Image(systemName: "hand.raised")
+                                .foregroundColor(BraverTheme.accent)
+                            Text("Política de Privacidad")
+                                .font(.system(size: 16, weight: .medium, design: .rounded))
+                                .foregroundColor(.white)
+                            Spacer()
+                            Image(systemName: "arrow.up.right")
+                                .font(.system(size: 14))
+                                .foregroundColor(Color(hex: "64748B"))
+                        }
+                        .padding(16)
+                        .background(Color.white.opacity(0.06))
+                        .cornerRadius(12)
+                    }
+                }
+                .padding(.horizontal, 24)
+
+                Spacer()
+            }
+
+            VStack(spacing: 0) {
+                Button(action: onContinue) {
+                    Text("He leído y acepto →")
+                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(BraverTheme.accent)
+                        .cornerRadius(16)
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 16)
+                .padding(.bottom, 40)
+            }
+            .background(Color(hex: "050507"))
+        }
+    }
+}
+
 // MARK: - Rating Screen (Step 19)
 
 private struct AppReview: Identifiable {
@@ -776,11 +926,7 @@ private struct RatingScreen: View {
     let onBack: () -> Void
     let onContinue: () -> Void
 
-    private func requestNotifications() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { _, _ in
-            DispatchQueue.main.async { onContinue() }
-        }
-    }
+    @Environment(\.requestReview) private var requestReview
 
     private let reviews: [AppReview] = [
         .init(initials: "CM", initialsColor: Color(hex: "4C9EEB"),
@@ -880,7 +1026,7 @@ private struct RatingScreen: View {
 
             // CTA
             VStack(spacing: 0) {
-                Button(action: requestNotifications) {
+                Button(action: { requestReview(); onContinue() }) {
                     Text("Puntuar Braver →")
                         .font(.system(size: 17, weight: .semibold, design: .rounded))
                         .foregroundColor(.white)
@@ -949,7 +1095,6 @@ private struct GoalsScreen: View {
     let onBack: () -> Void
     let onContinue: () -> Void
 
-    @Environment(\.requestReview) private var requestReview
     @State private var selected: Set<UUID> = []
 
     private let goals: [GoalItem] = [
@@ -1024,7 +1169,6 @@ private struct GoalsScreen: View {
                     if let data = try? JSONEncoder().encode(labels) {
                         UserDefaults.standard.set(data, forKey: "braver_goals")
                     }
-                    requestReview()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { onContinue() }
                 }) {
                     Text("Seguir estos objetivos →")
@@ -2361,6 +2505,7 @@ private struct AnalyzingScreen: View {
 
 private struct WelcomeScreen: View {
     let onStart: () -> Void
+    let onAlreadyHaveAccount: () -> Void
 
     @State private var orbPulse: Bool = false
 
@@ -2465,6 +2610,14 @@ private struct WelcomeScreen: View {
                             .cornerRadius(100)
                         }
                         .padding(.horizontal, 24)
+
+                        Button(action: onAlreadyHaveAccount) {
+                            Text("¿Ya tienes cuenta? ")
+                                .foregroundColor(Color(hex: "94A3B8").opacity(0.7))
+                            + Text("Iniciar sesión")
+                                .foregroundColor(Color(hex: "94A3B8"))
+                        }
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
 
                         Text("Al continuar aceptas los Términos y Política de privacidad")
                             .font(.system(size: 12, weight: .regular, design: .rounded))
@@ -3357,7 +3510,14 @@ private struct PaywallScreen: View {
                             .font(.system(size: 13, weight: .medium, design: .rounded))
                             .foregroundColor(BraverTheme.bravura)
                     }
-                    .padding(.bottom, 36)
+                    .padding(.bottom, 10)
+
+                    Text("Braver es una herramienta de desarrollo personal y no sustituye el consejo de un profesional de salud mental.")
+                        .font(.system(size: 10, design: .rounded))
+                        .foregroundColor(Color.white.opacity(0.22))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 32)
+                        .padding(.bottom, 28)
                 }
                 .background(Color(hex: "050507"))
             }
@@ -3627,6 +3787,170 @@ private struct PaywallDailyHabitsBlock: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 32)
         }
+    }
+}
+
+// MARK: - Account Creation Screen (Step 23)
+
+private struct AccountCreationScreen: View {
+    enum Mode { case create, login }
+
+    var mode: Mode = .create
+    let onContinue: () -> Void
+    let onBack: () -> Void
+
+    @State private var isLoading = false
+    @State private var errorMessage: String? = nil
+
+    var title: String { mode == .create ? "Guarda tu progreso" : "Iniciar sesión" }
+    var subtitle: String { mode == .create
+        ? "Crea una cuenta para acceder desde\ncualquier dispositivo."
+        : "Accede a tu cuenta para recuperar\ntu progreso."
+    }
+
+    var body: some View {
+        GeometryReader { geo in
+            ZStack {
+                Color(hex: "050507").ignoresSafeArea()
+
+                Circle()
+                    .fill(Color(hex: "0E9090").opacity(0.16))
+                    .frame(width: geo.size.width * 1.1)
+                    .blur(radius: 80)
+                    .offset(x: -geo.size.width * 0.3, y: -geo.size.height * 0.3)
+
+                Circle()
+                    .fill(Color(hex: "4C9EEB").opacity(0.10))
+                    .frame(width: geo.size.width * 0.9)
+                    .blur(radius: 70)
+                    .offset(x: geo.size.width * 0.4, y: -geo.size.height * 0.05)
+
+                VStack(alignment: .leading, spacing: 0) {
+                    // Back button
+                    HStack {
+                        Button(action: onBack) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 17, weight: .semibold))
+                                .foregroundColor(.white)
+                                .frame(width: 40, height: 40)
+                                .background(Color.white.opacity(0.12))
+                                .clipShape(Circle())
+                        }
+                        Spacer()
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 12)
+                    .padding(.bottom, 40)
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text(title)
+                            .font(.system(size: 30, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+
+                        Text(subtitle)
+                            .font(.system(size: 17, weight: .regular, design: .rounded))
+                            .foregroundColor(Color(hex: "94A3B8"))
+                            .lineSpacing(4)
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 48)
+
+                    VStack(spacing: 14) {
+                        // Apple button
+                        Button {
+                            guard !isLoading else { return }
+                            isLoading = true
+                            errorMessage = nil
+                            Task {
+                                do {
+                                    try await AuthService.shared.linkWithApple()
+                                    await MainActor.run { onContinue() }
+                                } catch {
+                                    await MainActor.run {
+                                        isLoading = false
+                                        errorMessage = error.localizedDescription
+                                    }
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 10) {
+                                Image(systemName: "apple.logo")
+                                    .font(.system(size: 18, weight: .semibold))
+                                Text("Continuar con Apple")
+                                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                            }
+                            .foregroundColor(Color(hex: "050507"))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 18)
+                            .background(Color(hex: "F1F5F9"))
+                            .cornerRadius(100)
+                        }
+
+                        // Google button
+                        Button {
+                            guard !isLoading else { return }
+                            isLoading = true
+                            errorMessage = nil
+                            Task {
+                                do {
+                                    try await AuthService.shared.signInWithGoogle()
+                                    await MainActor.run { onContinue() }
+                                } catch {
+                                    await MainActor.run {
+                                        isLoading = false
+                                        errorMessage = error.localizedDescription
+                                    }
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 10) {
+                                Text("G")
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .frame(width: 24, height: 24)
+                                Text("Continuar con Google")
+                                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                            }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 18)
+                            .background(Color.white.opacity(0.10))
+                            .cornerRadius(100)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 100)
+                                    .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                            )
+                        }
+
+                        if let err = errorMessage {
+                            Text(err)
+                                .font(.system(size: 13, design: .rounded))
+                                .foregroundColor(Color(hex: "F87171"))
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 8)
+                        }
+
+                        if isLoading {
+                            ProgressView()
+                                .tint(.white)
+                                .padding(.top, 4)
+                        }
+                    }
+                    .padding(.horizontal, 24)
+
+                    Spacer()
+
+                    Button(action: onContinue) {
+                        Text("Ahora no  →")
+                            .font(.system(size: 15, weight: .medium, design: .rounded))
+                            .foregroundColor(Color(hex: "94A3B8").opacity(0.7))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom, 40)
+                }
+            }
+        }
+        .ignoresSafeArea()
     }
 }
 

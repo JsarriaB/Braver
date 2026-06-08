@@ -7,19 +7,37 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CA8691042F8D49FB00A98457 /* SuperwallKit in Frameworks */ = {isa = PBXBuildFile; productRef = CA8691032F8D49FB00A98457 /* SuperwallKit */; };
 		CAA262C92F82B68D00AA7C9F /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = CAA262C82F82B68D00AA7C9F /* FirebaseCore */; };
 		CAA262CB2F82B68D00AA7C9F /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = CAA262CA2F82B68D00AA7C9F /* FirebaseFunctions */; };
 		CAA262CD2F82F51100AA7C9F /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = CAA262CC2F82F51100AA7C9F /* FirebaseAppCheck */; };
 		CAA262D12F839A4600AA7C9F /* FirebaseInstallations in Frameworks */ = {isa = PBXBuildFile; productRef = CAA262D02F839A4600AA7C9F /* FirebaseInstallations */; };
+		CAE9FAB52FD3240D006F1164 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = CAE9FAB42FD3240D006F1164 /* FirebaseAuth */; };
+		CAE9FABA2FD32BA2006F1164 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = CAE9FAB92FD32BA2006F1164 /* GoogleSignIn */; };
+		CAE9FABC2FD32BA2006F1164 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = CAE9FABB2FD32BA2006F1164 /* GoogleSignInSwift */; };
+		CAE9FABE2FD32F3E006F1164 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = CAE9FABD2FD32F3E006F1164 /* FirebaseFirestore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		CAA25D722F71BBAC00AA7C9F /* Braver.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Braver.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CAE9FAC42FD36866006F1164 /* Exceptions for "Braver" folder in "Braver" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CAA25D712F71BBAC00AA7C9F /* Braver */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CAA25D742F71BBAC00AA7C9F /* Braver */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CAE9FAC42FD36866006F1164 /* Exceptions for "Braver" folder in "Braver" target */,
+			);
 			path = Braver;
 			sourceTree = "<group>";
 		};
@@ -31,9 +49,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				CAA262C92F82B68D00AA7C9F /* FirebaseCore in Frameworks */,
+				CAE9FAB52FD3240D006F1164 /* FirebaseAuth in Frameworks */,
 				CAA262CD2F82F51100AA7C9F /* FirebaseAppCheck in Frameworks */,
+				CAE9FABC2FD32BA2006F1164 /* GoogleSignInSwift in Frameworks */,
 				CAA262CB2F82B68D00AA7C9F /* FirebaseFunctions in Frameworks */,
+				CAE9FABE2FD32F3E006F1164 /* FirebaseFirestore in Frameworks */,
+				CA8691042F8D49FB00A98457 /* SuperwallKit in Frameworks */,
 				CAA262D12F839A4600AA7C9F /* FirebaseInstallations in Frameworks */,
+				CAE9FABA2FD32BA2006F1164 /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,6 +111,11 @@
 				CAA262CA2F82B68D00AA7C9F /* FirebaseFunctions */,
 				CAA262CC2F82F51100AA7C9F /* FirebaseAppCheck */,
 				CAA262D02F839A4600AA7C9F /* FirebaseInstallations */,
+				CA8691032F8D49FB00A98457 /* SuperwallKit */,
+				CAE9FAB42FD3240D006F1164 /* FirebaseAuth */,
+				CAE9FAB92FD32BA2006F1164 /* GoogleSignIn */,
+				CAE9FABB2FD32BA2006F1164 /* GoogleSignInSwift */,
+				CAE9FABD2FD32F3E006F1164 /* FirebaseFirestore */,
 			);
 			productName = Braver;
 			productReference = CAA25D722F71BBAC00AA7C9F /* Braver.app */;
@@ -119,6 +147,8 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				CAA262C72F82B68D00AA7C9F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				CA8691022F8D49FB00A98457 /* XCRemoteSwiftPackageReference "Superwall-iOS" */,
+				CAE9FAB82FD32BA2006F1164 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CAA25D732F71BBAC00AA7C9F /* Products */;
@@ -204,7 +234,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -262,7 +292,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -283,10 +313,10 @@
 				DEVELOPMENT_TEAM = 6V6A4FGK7C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Braver/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -296,12 +326,16 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.jorgesarria.Braver;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -316,10 +350,10 @@
 				DEVELOPMENT_TEAM = 6V6A4FGK7C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Braver/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -329,12 +363,16 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.jorgesarria.Braver;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -362,6 +400,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		CA8691022F8D49FB00A98457 /* XCRemoteSwiftPackageReference "Superwall-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/superwall/Superwall-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.14.2;
+			};
+		};
 		CAA262C72F82B68D00AA7C9F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -370,9 +416,22 @@
 				minimumVersion = 12.11.0;
 			};
 		};
+		CAE9FAB82FD32BA2006F1164 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.1.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		CA8691032F8D49FB00A98457 /* SuperwallKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CA8691022F8D49FB00A98457 /* XCRemoteSwiftPackageReference "Superwall-iOS" */;
+			productName = SuperwallKit;
+		};
 		CAA262C82F82B68D00AA7C9F /* FirebaseCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = CAA262C72F82B68D00AA7C9F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
@@ -392,6 +451,26 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CAA262C72F82B68D00AA7C9F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseInstallations;
+		};
+		CAE9FAB42FD3240D006F1164 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CAA262C72F82B68D00AA7C9F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		CAE9FAB92FD32BA2006F1164 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CAE9FAB82FD32BA2006F1164 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		CAE9FABB2FD32BA2006F1164 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CAE9FAB82FD32BA2006F1164 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+		CAE9FABD2FD32F3E006F1164 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CAA262C72F82B68D00AA7C9F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

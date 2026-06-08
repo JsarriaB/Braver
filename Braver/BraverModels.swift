@@ -208,6 +208,29 @@ class ChallengeCompletion {
 }
 
 @Model
+class PreparateSession {
+    var id: UUID
+    var situacion: String
+    var preocupacion: String
+    var sudsPrediccion: Int
+    var contextoExtra: String
+    var novaResponse: String
+    var sudsReal: Int?
+    var fecha: Date
+
+    init(situacion: String, preocupacion: String, sudsPrediccion: Int, contextoExtra: String, novaResponse: String) {
+        self.id = UUID()
+        self.situacion = situacion
+        self.preocupacion = preocupacion
+        self.sudsPrediccion = sudsPrediccion
+        self.contextoExtra = contextoExtra
+        self.novaResponse = novaResponse
+        self.sudsReal = nil
+        self.fecha = Date()
+    }
+}
+
+@Model
 class MomentoSession {
     var id: UUID
     var date: Date

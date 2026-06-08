@@ -24,6 +24,34 @@ enum NotificationService {
 
     // MARK: - Privadas
 
+    static func scheduleMorningAt(hour: Int, minute: Int) {
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: ["braver_morning"])
+        let content = UNMutableNotificationContent()
+        content.title = "Tu misión de hoy te espera 💪"
+        content.body = "Abre Braver y acepta el reto del día."
+        content.sound = .default
+        var components = DateComponents()
+        components.hour = hour
+        components.minute = minute
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+        center.add(UNNotificationRequest(identifier: "braver_morning", content: content, trigger: trigger))
+    }
+
+    static func scheduleEveningAt(hour: Int, minute: Int) {
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: ["braver_evening"])
+        let content = UNMutableNotificationContent()
+        content.title = "¿Cómo fue tu día? 🌙"
+        content.body = "Tómate un momento para registrar cómo te fue."
+        content.sound = .default
+        var components = DateComponents()
+        components.hour = hour
+        components.minute = minute
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+        center.add(UNNotificationRequest(identifier: "braver_evening", content: content, trigger: trigger))
+    }
+
     private static func scheduleMorningReminder(center: UNUserNotificationCenter) {
         let content = UNMutableNotificationContent()
         content.title = "Tu misión de hoy te espera 💪"

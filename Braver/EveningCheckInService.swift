@@ -1,5 +1,7 @@
 import Foundation
 import Combine
+import FirebaseAuth
+import FirebaseFirestore
 
 // MARK: - Model
 
@@ -37,9 +39,27 @@ class EveningCheckInService: ObservableObject {
     }
 
     func save(mood: String, moodLabel: String, note: String?) {
+        guard !hasCheckInToday else { return }
         let entry = EveningCheckIn(mood: mood, moodLabel: moodLabel, note: note)
         checkIns.insert(entry, at: 0)
         persist()
+        syncToFirestore(entry)
+    }
+
+    private func syncToFirestore(_ entry: EveningCheckIn) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let data: [String: Any] = [
+            "date": Timestamp(date: entry.date),
+            "mood": entry.mood,
+            "moodLabel": entry.moodLabel,
+            "note": entry.note as Any
+        ]
+        Task {
+            try? await Firestore.firestore()
+                .collection("users").document(uid)
+                .collection("checkins").document(entry.id.uuidString)
+                .setData(data)
+        }
     }
 
     // MARK: - Persistence

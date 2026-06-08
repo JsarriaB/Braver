@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Braver — Oferta especial</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #050507;
+    color: #FFFFFF;
+    font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px 32px;
+    overflow-x: hidden;
+  }
+
+  /* ── BANNER SUPERIOR ── */
+  .banner {
+    width: calc(100% + 40px);
+    margin: 0 -20px;
+    background: linear-gradient(135deg, #0E9090 0%, #0ABFBF 100%);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .banner-text {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #FFFFFF;
+  }
+  .bolt { font-size: 14px; }
+
+  /* ── HEADLINE ── */
+  .headline-wrap {
+    margin-top: 28px;
+    text-align: center;
+  }
+  .off-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #0E9090, #0ABFBF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 72px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+  .off-label {
+    font-size: 18px;
+    font-weight: 600;
+    color: #AAAAAA;
+    margin-top: 4px;
+  }
+  .subline {
+    font-size: 14px;
+    color: #666;
+    margin-top: 8px;
+    letter-spacing: 0.3px;
+  }
+
+  /* ── COUNTDOWN ── */
+  .countdown-wrap {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .countdown-label {
+    font-size: 13px;
+    color: #888;
+  }
+  .countdown-timer {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0ABFBF;
+    font-variant-numeric: tabular-nums;
+    font-family: 'SF Mono', 'Courier New', monospace;
+  }
+
+  /* ── PRICE CARD ── */
+  .price-card {
+    margin-top: 24px;
+    width: 100%;
+    background: #0D1117;
+    border: 1px solid #1A2332;
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .price-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #0E9090, #0ABFBF);
+  }
+  .price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+  }
+  .price-row + .price-row {
+    border-top: 1px solid #1A2332;
+  }
+  .price-row-label {
+    font-size: 14px;
+    color: #777;
+  }
+  .price-row-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #444;
+    text-decoration: line-through;
+    text-decoration-color: #555;
+  }
+  .price-row-value.highlight {
+    color: #FFFFFF;
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: 800;
+  }
+  .price-row-label.highlight {
+    color: #CCCCCC;
+    font-size: 14px;
+  }
+  .savings-badge {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: rgba(14, 144, 144, 0.15);
+    border: 1px solid rgba(14, 144, 144, 0.4);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #0ABFBF;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* ── FEATURES ── */
+  .features {
+    margin-top: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: #CCCCCC;
+  }
+  .feature-icon {
+    width: 28px; height: 28px;
+    background: rgba(14, 144, 144, 0.12);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  /* ── CTA ── */
+  .cta-wrap {
+    margin-top: 28px;
+    width: 100%;
+  }
+  .cta-button {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #0E9090 0%, #0ABFBF 100%);
+    border: none;
+    border-radius: 14px;
+    color: #FFFFFF;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    letter-spacing: 0.2px;
+    box-shadow: 0 8px 32px rgba(14, 144, 144, 0.4);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .cta-button:active {
+    opacity: 0.9;
+    transform: scale(0.99);
+  }
+
+  /* ── FINE PRINT ── */
+  .fine-print {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 12px;
+    color: #555;
+    line-height: 1.5;
+  }
+  .fine-print a {
+    color: #666;
+    text-decoration: underline;
+  }
+  .restore-link {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 13px;
+    color: #555;
+    cursor: pointer;
+    text-decoration: underline;
+    -webkit-tap-highlight-color: transparent;
+  }
+</style>
+</head>
+<body>
+
+  <!-- BANNER -->
+  <div class="banner">
+    <span class="bolt">⚡</span>
+    <span class="banner-text">Oferta de lanzamiento</span>
+    <span class="bolt">⚡</span>
+  </div>
+
+  <!-- HEADLINE -->
+  <div class="headline-wrap">
+    <div class="off-badge">58% OFF</div>
+    <div class="off-label">Solo por tiempo limitado</div>
+    <div class="subline">Únete antes de que expire la oferta</div>
+  </div>
+
+  <!-- COUNTDOWN -->
+  <div class="countdown-wrap">
+    <span class="countdown-label">La oferta expira en</span>
+    <span class="countdown-timer" id="timer">10:00</span>
+  </div>
+
+  <!-- PRICE CARD -->
+  <div class="price-card">
+    <div class="savings-badge">MEJOR OFERTA</div>
+    <div class="price-row">
+      <span class="price-row-label">Precio normal</span>
+      <span class="price-row-value">$59.99/año</span>
+    </div>
+    <div class="price-row">
+      <span class="price-row-label highlight">Tu precio hoy</span>
+      <span class="price-row-value highlight">{{ products.yearly.price }}/año</span>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="features">
+    <div class="feature-item">
+      <div class="feature-icon">🧠</div>
+      Retos diarios de exposición social
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">⚡</div>
+      Nova: tu coach de ansiedad con IA
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">📊</div>
+      Seguimiento de tu progreso real
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">🌙</div>
+      Check-in nocturno y reflexión diaria
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-wrap">
+    <button class="cta-button" onclick="SWK.purchase('yearly')">
+      ⚡ Conseguir oferta · {{ products.yearly.price }}/año
+    </button>
+  </div>
+
+  <!-- FINE PRINT -->
+  <div class="fine-print">
+    Equivale a menos de {{ products.yearly.dailyPrice }} al día<br>
+    Se renueva automáticamente · Cancela cuando quieras
+  </div>
+
+  <div class="restore-link" onclick="SWK.restore()">
+    Restaurar compra anterior
+  </div>
+
+</body>
+<script>
+  // Countdown de 10 minutos
+  (function() {
+    var totalSeconds = 10 * 60;
+    var timerEl = document.getElementById('timer');
+    function update() {
+      if (totalSeconds <= 0) {
+        timerEl.textContent = '00:00';
+        return;
+      }
+      totalSeconds--;
+      var m = Math.floor(totalSeconds / 60);
+      var s = totalSeconds % 60;
+      timerEl.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    }
+    update();
+    setInterval(update, 1000);
+  })();
+</script>
+</html>

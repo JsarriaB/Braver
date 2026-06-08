@@ -20,9 +20,63 @@ struct Lesson: Identifiable {
     let id: String
     let number: Int
     let title: String
+    // Legacy fields — used when screens == nil (old LessonDetailView)
     let body: String
     let keyInsight: String
     let scienceFact: String
+    // Wizard format — if set, opens LessonWizardView instead
+    var screens: [LessonScreenData]? = nil
+}
+
+// MARK: - Wizard Screen Types
+
+enum LessonScreenType {
+    case intro             // portada: ilustración + título + subtítulo
+    case diagnostico       // pregunta con opciones, sin respuesta correcta
+    case teoria            // texto corto + idea clave destacada
+    case carrusel          // tarjetas deslizables con ejemplos
+    case tabs              // 2-3 pestañas con perspectivas distintas
+    case ejercicioIdentifica  // el usuario toca los correctos de una lista
+    case resumen           // 3 puntos clave al final de la lección
+    case celebracion       // "lección completada" con métricas
+    case rating            // "¿cuánto resuena esto contigo?"
+}
+
+// MARK: - Supporting Types
+
+struct LessonCard: Identifiable {
+    let id = UUID()
+    let title: String
+    let body: String
+    var icon: String = ""
+}
+
+struct LessonTab {
+    let title: String
+    let body: String
+}
+
+struct IdentifyOption: Identifiable {
+    let id = UUID()
+    let text: String
+    let isCorrect: Bool
+    var explanation: String = ""
+}
+
+// MARK: - Screen Data
+
+struct LessonScreenData {
+    let type: LessonScreenType
+    var title: String = ""
+    var subtitle: String = ""
+    var body: String = ""
+    var highlight: String = ""           // idea clave / highlight box
+    var icon: String = ""               // SF Symbol para intro
+    var choices: [String] = []          // opciones del diagnóstico
+    var cards: [LessonCard] = []        // carrusel
+    var tabs: [LessonTab] = []          // tabs
+    var identifyOptions: [IdentifyOption] = []  // ejercicio identifica
+    var keyPoints: [String] = []        // resumen
 }
 
 // MARK: - Nova Chat Message

@@ -1,5 +1,7 @@
 import Foundation
 import Combine
+import FirebaseAuth
+import FirebaseFirestore
 
 // MARK: - Modelo de intento
 
@@ -12,6 +14,8 @@ struct ChallengeAttempt: Codable, Identifiable {
     let difficultyRaw: String
     let date: Date
     var status: AttemptStatus
+    var suds: Int? = nil
+    var mood: String? = nil   // emoji: "😌" "😬" "😤"
 
     enum AttemptStatus: String, Codable {
         case completed  // "Ya lo hice"
@@ -37,7 +41,6 @@ class ChallengeHistoryService: ObservableObject {
 
     // Llamar desde HoyView al confirmar resultado
     func record(challenge: DailyChallenge, status: ChallengeAttempt.AttemptStatus) {
-        // Evitar duplicado del mismo reto el mismo día
         let today = Calendar.current.startOfDay(for: Date())
         if attempts.contains(where: {
             $0.challengeId == challenge.id &&
@@ -56,6 +59,36 @@ class ChallengeHistoryService: ObservableObject {
         )
         attempts.insert(attempt, at: 0)
         save()
+        syncToFirestore(attempt)
+    }
+
+    func updateLatest(suds: Int, mood: String?) {
+        guard !attempts.isEmpty else { return }
+        attempts[0].suds = suds
+        attempts[0].mood = mood
+        save()
+        syncToFirestore(attempts[0])
+    }
+
+    private func syncToFirestore(_ attempt: ChallengeAttempt) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let data: [String: Any] = [
+            "challengeId": attempt.challengeId,
+            "title": attempt.title,
+            "category": attempt.category,
+            "categoryEmoji": attempt.categoryEmoji,
+            "difficulty": attempt.difficultyRaw,
+            "date": Timestamp(date: attempt.date),
+            "status": attempt.status.rawValue,
+            "suds": attempt.suds as Any,
+            "mood": attempt.mood as Any
+        ]
+        Task {
+            try? await Firestore.firestore()
+                .collection("users").document(uid)
+                .collection("completions").document(attempt.id.uuidString)
+                .setData(data, merge: true)
+        }
     }
 
     // IDs de retos intentados (para excluir en selección diaria)

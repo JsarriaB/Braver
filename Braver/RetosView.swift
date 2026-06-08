@@ -5,7 +5,7 @@ struct RetosView: View {
     @State private var selectedTab = 0          // 0 = Historial, 1 = Biblioteca
     @State private var selectedCategory: String? = nil
 
-    let categories = ["Llamadas", "Tiendas", "Hablar en público", "Ligar", "Grupos", "Trabajo", "Conflictos", "Conocer gente"]
+    let categories = ["Llamadas", "Tiendas", "Hablar en público", "Ligar", "Grupos", "Trabajo", "Conflictos", "Conocer gente", "Contenido"]
 
     var filteredChallenges: [DailyChallenge] {
         guard let cat = selectedCategory else { return ChallengeLibrary.all }

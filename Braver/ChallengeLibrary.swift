@@ -82,6 +82,16 @@ enum ChallengeLibrary {
         DailyChallenge(id: "e31", title: "Preséntate a alguien nuevo en un entorno donde ya te conocen a ti", subtitle: "Tú puedes iniciar.", category: "Conocer gente", categoryEmoji: "🤝", difficulty: .easy),
         DailyChallenge(id: "e32", title: "Haz un cumplido sincero a alguien que no conoces bien", subtitle: "Los cumplidos directos son raros y muy bien recibidos.", category: "Conocer gente", categoryEmoji: "🤝", difficulty: .easy),
         DailyChallenge(id: "e33", title: "Inicia una conversación comentando algo del entorno", subtitle: "El tiempo, el sitio, lo que sea. Lo obvio funciona.", category: "Conocer gente", categoryEmoji: "🤝", difficulty: .easy),
+
+        // Contenido
+        DailyChallenge(id: "e_c01", title: "Grábate 30 segundos hablando de algo que te gusta. No lo subas — solo guárdalo.", subtitle: "La primera grabación es para ti. Nadie más la verá.", category: "Contenido", categoryEmoji: "🎥", difficulty: .easy),
+        DailyChallenge(id: "e_c02", title: "Comenta algo en el post de un creador que sigas. Una frase honesta.", subtitle: "Participar como espectador es el primer paso hacia crear.", category: "Contenido", categoryEmoji: "🎥", difficulty: .easy),
+        DailyChallenge(id: "e_c03", title: "Cuéntale a una persona de confianza que estás pensando en crear contenido.", subtitle: "Decirlo en voz alta lo hace más real y menos aterrador.", category: "Contenido", categoryEmoji: "🎥", difficulty: .easy),
+        DailyChallenge(id: "e_c04", title: "Graba solo tu voz (sin cámara) contando algo en 60 segundos. Escúchala después.", subtitle: "Tu voz ya es contenido. La cara viene después.", category: "Contenido", categoryEmoji: "🎥", difficulty: .easy),
+        DailyChallenge(id: "e_c05", title: "Crea una cuenta nueva (puede ser privada) en la plataforma que más te interese.", subtitle: "El paso más difícil es el primero. Este es pequeñísimo.", category: "Contenido", categoryEmoji: "🎥", difficulty: .easy),
+        DailyChallenge(id: "e_c06", title: "Mira durante 10 minutos cuentas de tu nicho con menos de 500 seguidores. Fíjate en lo imperfecto que puede ser.", subtitle: "Verás que todos empezaron igual. Tú también puedes.", category: "Contenido", categoryEmoji: "🎥", difficulty: .easy),
+        DailyChallenge(id: "e_c07", title: "Escribe el guion o la idea de un primer vídeo. Solo escríbelo — nada de grabar.", subtitle: "La claridad de la idea reduce el miedo de la grabación.", category: "Contenido", categoryEmoji: "🎥", difficulty: .easy),
+        DailyChallenge(id: "e_c08", title: "Sube una foto de algo que no sea tu cara a una historia que desaparece en 24h.", subtitle: "Las historias son el formato más seguro para empezar.", category: "Contenido", categoryEmoji: "🎥", difficulty: .easy),
     ]
 
     // MARK: MODERADO
@@ -134,6 +144,16 @@ enum ChallengeLibrary {
         DailyChallenge(id: "m30", title: "Inicia conversación con alguien que está solo/a en un evento", subtitle: "Seguramente agradecen que te acerques.", category: "Conocer gente", categoryEmoji: "🤝", difficulty: .moderate),
         DailyChallenge(id: "m31", title: "Pide el número a alguien con quien has tenido buena conversación", subtitle: "Si la conversación fue buena, tener su número tiene sentido.", category: "Conocer gente", categoryEmoji: "🤝", difficulty: .moderate),
         DailyChallenge(id: "m32", title: "Propón quedar a alguien con quien lleváis tiempo sin veros", subtitle: "La iniciativa es lo que mantiene vivas las relaciones.", category: "Conocer gente", categoryEmoji: "🤝", difficulty: .moderate),
+
+        // Contenido
+        DailyChallenge(id: "m_c01", title: "Grábate la cara 1 minuto hablando sobre algo que dominas. Guárdalo — no lo subas.", subtitle: "Verte en pantalla es incómodo la primera vez. Normal. Sigue.", category: "Contenido", categoryEmoji: "🎥", difficulty: .moderate),
+        DailyChallenge(id: "m_c02", title: "Sube una historia con tu voz sin mostrar la cara.", subtitle: "Voz visible, cara invisible. Es un escalón que vale mucho.", category: "Contenido", categoryEmoji: "🎥", difficulty: .moderate),
+        DailyChallenge(id: "m_c03", title: "Publica un post de texto sobre algo que sabes en X, Reddit o LinkedIn.", subtitle: "El texto escrito es contenido real. Y no necesita cámara.", category: "Contenido", categoryEmoji: "🎥", difficulty: .moderate),
+        DailyChallenge(id: "m_c04", title: "Sube un vídeo corto donde aparezcan tus manos o tu espalda — sin mostrar la cara.", subtitle: "Estás en pantalla. La cara puede esperar.", category: "Contenido", categoryEmoji: "🎥", difficulty: .moderate),
+        DailyChallenge(id: "m_c05", title: "Grábate durante 3 minutos. Ve solo los primeros 30 segundos. Para ahí.", subtitle: "No tienes que aguantar verte entero. Solo empezar.", category: "Contenido", categoryEmoji: "🎥", difficulty: .moderate),
+        DailyChallenge(id: "m_c06", title: "Pídele a alguien de confianza que te grabe en un momento natural. Míralo.", subtitle: "Verte desde fuera cambia cómo te percibes. Para mejor.", category: "Contenido", categoryEmoji: "🎥", difficulty: .moderate),
+        DailyChallenge(id: "m_c07", title: "Crea un Reel o TikTok usando una plantilla de audio — sin texto, sin cara.", subtitle: "La plantilla lleva el peso. Tú solo tienes que publicarlo.", category: "Contenido", categoryEmoji: "🎥", difficulty: .moderate),
+        DailyChallenge(id: "m_c08", title: "Lee en voz alta los comentarios del último creador que viste. Cuenta cuántos son negativos realmente.", subtitle: "Los datos siempre son mejores que el miedo que imaginas.", category: "Contenido", categoryEmoji: "🎥", difficulty: .moderate),
     ]
 
     // MARK: DIFÍCIL
@@ -179,13 +199,44 @@ enum ChallengeLibrary {
         DailyChallenge(id: "h23", title: "Ve solo/a a un evento social donde no conoces a nadie", subtitle: "Ir solo/a te obliga a hablar. Es lo mejor que puede pasarte.", category: "Conocer gente", categoryEmoji: "🤝", difficulty: .hard),
         DailyChallenge(id: "h24", title: "Únete a una actividad o club nuevo donde eres el desconocido", subtitle: "Todo el mundo fue desconocido algún día.", category: "Conocer gente", categoryEmoji: "🤝", difficulty: .hard),
         DailyChallenge(id: "h25", title: "Habla con el organizador de un evento para conocer más gente", subtitle: "El organizador conoce a todo el mundo. Es tu mejor aliado.", category: "Conocer gente", categoryEmoji: "🤝", difficulty: .hard),
+
+        // Contenido
+        DailyChallenge(id: "h_c01", title: "Sube un vídeo corto (menos de 60 segundos) mostrando tu cara. Sin filtros de alteración facial.", subtitle: "Un vídeo imperfecto publicado vale más que diez perfectos en borrador.", category: "Contenido", categoryEmoji: "🎥", difficulty: .hard),
+        DailyChallenge(id: "h_c02", title: "Responde en vídeo (Stories o Reels) a una pregunta de alguien en tu área.", subtitle: "Ayudas a alguien real y entrenas la cámara al mismo tiempo.", category: "Contenido", categoryEmoji: "🎥", difficulty: .hard),
+        DailyChallenge(id: "h_c03", title: "Sube un vídeo donde cometes un error obvio — equivócate, ríete, sigue en el mismo vídeo.", subtitle: "Los errores auténticos conectan más que la perfección fría.", category: "Contenido", categoryEmoji: "🎥", difficulty: .hard),
+        DailyChallenge(id: "h_c04", title: "Publica contenido sin editarlo más de 10 minutos. Graba, mínima edición, sube.", subtitle: "La velocidad de publicación es una habilidad. Empieza a entrenarla.", category: "Contenido", categoryEmoji: "🎥", difficulty: .hard),
+        DailyChallenge(id: "h_c05", title: "Haz un directo de 5-10 minutos. No importa si nadie lo ve en tiempo real.", subtitle: "La incomodidad del directo es la prueba máxima. Una vez la pasas, lo demás es fácil.", category: "Contenido", categoryEmoji: "🎥", difficulty: .hard),
+        DailyChallenge(id: "h_c06", title: "Sube el contenido que más vergüenza te da. El que llevas tiempo posponiendo.", subtitle: "Lo que más te da vergüenza suele ser lo más auténtico que tienes.", category: "Contenido", categoryEmoji: "🎥", difficulty: .hard),
     ]
 
     // MARK: - Selección diaria
 
     /// Devuelve 2 retos para hoy basándose en los días de progreso del orbe.
     static func todaysChallenges(orbDays: Int, seen: [String] = []) -> [DailyChallenge] {
-        let pool = poolForDays(orbDays)
+        let favoriteCategory = UserDefaults.standard.string(forKey: "braver_favorite_category") ?? ""
+        let excludedCategories: [String] = {
+            guard let data = UserDefaults.standard.data(forKey: "braver_excluded_categories"),
+                  let arr = try? JSONDecoder().decode([String].self, from: data) else { return [] }
+            return arr
+        }()
+
+        var pool = poolForDays(orbDays)
+
+        // Filtrar excluidas (solo si quedan suficientes retos)
+        if !excludedCategories.isEmpty {
+            let filtered = pool.filter { !excludedCategories.contains($0.category) }
+            if !filtered.isEmpty { pool = filtered }
+        }
+
+        // Priorizar favorita añadiéndola al inicio del pool
+        if !favoriteCategory.isEmpty {
+            let favPool = pool.filter { $0.category == favoriteCategory }
+            let restPool = pool.filter { $0.category != favoriteCategory }
+            if !favPool.isEmpty {
+                pool = Array(favPool.shuffled().prefix(max(1, pool.count * 2 / 5))) + restPool
+            }
+        }
+
         let available = pool.filter { !seen.contains($0.id) }
         let source = available.isEmpty ? pool : available
         let shuffled = source.shuffled()

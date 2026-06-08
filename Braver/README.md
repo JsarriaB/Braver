@@ -10,7 +10,7 @@ Este plan mejora la app en tres frentes sin cambiar lo que ya funciona bien.
 
 ---
 
-## FASE 1 — Nuevo motor de módulos (wizard por capas)
+## ✅ FASE 1 — Nuevo motor de módulos (wizard por capas) — COMPLETADA
 
 ### Qué es
 
@@ -54,7 +54,7 @@ Cada lección es un array de pantallas. Cada pantalla tiene un tipo:
 
 ---
 
-## FASE 2 — Rediseño de los 4 módulos existentes
+## ✅ FASE 2 — Rediseño de los 4 módulos existentes — COMPLETADA
 
 ### Estructura tipo de una lección rediseñada
 
@@ -73,37 +73,14 @@ Ejemplo: "El alivio que te engaña" (Módulo 2 — La trampa de la evitación)
 
 ### Los 4 módulos — estructura de sus 5 lecciones
 
-**Módulo 1 — Entender tu vergüenza**
-1. Qué es la vergüenza de verdad → teoria + carrusel (vergüenza vs timidez vs ansiedad social) + ejercicio_identifica
-2. Por qué tu cerebro quiere esconderte → teoria + tabs (amenaza real / amenaza percibida) + ejercicio_matching
-3. Vergüenza sana vs vergüenza tóxica → teoria + carrusel + ejercicio_construye
-4. Tus detonadores personales → diagnostico extendido + teoria + ejercicio_identifica
-5. El ciclo de la vergüenza → teoria + tabs + ejercicio_matching + cierre_visual
-
-**Módulo 2 — La trampa de la evitación**
-1. El alivio que te engaña → (ver ejemplo detallado arriba)
-2. Las conductas que te hacen sentir seguro → teoria + carrusel + ejercicio_identifica
-3. Antes, durante y después → teoria + tabs (rumiación pre/durante/post) + ejercicio_matching
-4. El efecto foco → teoria + carrusel + ejercicio_construye
-5. Cómo la evitación se generaliza → teoria + tabs + ejercicio_identifica + cierre_visual
-
-**Módulo 3 — Calmar tu mente y tu cuerpo**
-1. Qué le pasa a tu cuerpo → teoria + carrusel (síntomas físicos + su función evolutiva) + ejercicio_identifica
-2. La respiración de caja → teoria + tabs + ejercicio_construye (el ciclo: inhala/aguanta/exhala/aguanta)
-3. Reestructuración cognitiva → teoria + carrusel (3 ejemplos pensamiento → alternativa) + ejercicio_matching
-4. La autocompasión sin positivismo tóxico → teoria + tabs + ejercicio_identifica
-5. Tolerar el malestar → teoria + carrusel + ejercicio_construye + cierre_visual
-
-**Módulo 4 — Exponerte y ganar terreno**
-1. La ciencia de la exposición → teoria + carrusel (qué pasa en el cerebro) + ejercicio_matching
-2. La escala SUDS → teoria + tabs (cómo usar SUDS antes/durante/después) + ejercicio_construye
-3. Microexposiciones → teoria + carrusel (ejemplos por categoría) + ejercicio_identifica
-4. Cuando una exposición sale mal → teoria + tabs + ejercicio_matching
-5. Mantener el cambio → teoria + carrusel + ejercicio_construye + cierre_visual
+**✅ Módulo 1 — Entender tu vergüenza** — 5 lecciones en wizard (carrusel + tabs + ejercicioIdentifica, cada una diferente)
+**✅ Módulo 2 — La trampa de la evitación** — 5 lecciones en wizard (tabs + carrusel alternados, cierre con "¡Módulo 2 completado!")
+**✅ Módulo 3 — Calmar tu mente y tu cuerpo** — 5 lecciones en wizard (carrusel síntomas, tabs 4 fases respiración, carrusel reencuadres, tabs autocompasión, tabs tolerar malestar)
+**✅ Módulo 4 — Exponerte y ganar terreno** — 5 lecciones en wizard (carrusel cerebro, tabs SUDS, carrusel microexposiciones, tabs sale mal, tabs mantener cambio)
 
 ---
 
-## FASE 3 — Quinto módulo: "Ponlo en práctica"
+## 🔲 FASE 3 — Quinto módulo: "Ponlo en práctica" — PENDIENTE
 
 ### Qué es
 
@@ -148,7 +125,7 @@ Módulo nuevo. Mismo formato wizard. Diferencia clave: siempre parte de la ansie
 
 ---
 
-## FASE 4 — MomentoView: Modo Pánico + Modo Prepárate
+## 🔲 FASE 4 — MomentoView: Modo Pánico + Modo Prepárate — PENDIENTE
 
 ### Pantalla de entrada
 
@@ -214,12 +191,12 @@ Nueva tarjeta en Resumen: **"Tus predicciones vs la realidad"**
 
 ## Orden de implementación
 
-| Fase | Qué | Por qué este orden |
-|------|-----|--------------------|
-| 1 | Motor de wizard (modelos + componentes SwiftUI) | Sin esto nada de lo demás se puede construir |
-| 2 | Rediseño de los 4 módulos existentes | Mejora inmediata visible, contenido ya existe |
-| 3 | Quinto módulo "Ponlo en práctica" | Contenido nuevo sobre infraestructura ya lista |
-| 4 | MomentoView: Modo Pánico + Modo Prepárate | Flujo más complejo, va al final cuando el resto está estable |
+| Fase | Qué | Estado |
+|------|-----|--------|
+| 1 | Motor de wizard (modelos + componentes SwiftUI) | ✅ Completada |
+| 2 | Rediseño de los 4 módulos existentes (20 lecciones) | ✅ Completada |
+| 3 | Quinto módulo "Ponlo en práctica" (5 lecciones nuevas) | 🔲 Pendiente |
+| 4 | MomentoView: Modo Pánico + Modo Prepárate | 🔲 Pendiente |
 
 ---
 

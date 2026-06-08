@@ -101,5 +101,35 @@ enum DatosHoy {
 
         DatoDelDia(tag: "Autenticidad",
                    text: "Intentar parecer lo que no eres consume energía enorme y da resultados pobres. Ser auténtico, aunque imperfecto, es siempre más eficiente y más magnético."),
+
+        DatoDelDia(tag: "Cámara · Efecto exposición",
+                   text: "El efecto de mera exposición (Zajonc, 1968) demuestra que cuanto más nos exponemos a un estímulo, más cómodos nos volvemos con él. Verte en cámara repetidamente no es vanidad — es el mecanismo exacto que reduce el malestar. La incomodidad inicial no desaparece por prepararte más. Desaparece por repetición."),
+
+        DatoDelDia(tag: "Cámara · El efecto spotlight digital",
+                   text: "Estudios de Gilovich y Medvec muestran que sobrestimamos crónicamente cuánto notan los demás nuestros errores. En contenido digital esto se amplifica: los espectadores consumen cientos de vídeos al día. Lo que a ti te parece un tropiezo imperdonable, para ellos es invisible en el scroll."),
+
+        DatoDelDia(tag: "Cámara · Por qué no te reconoces",
+                   text: "Tu voz te suena rara en grabaciones porque en vivo la percibes por conducción ósea — los huesos amplifican los graves. El micrófono capta solo la conducción aérea, que es lo que oyen los demás. Lo que te resulta extraño es exactamente tu voz real. Ellos la conocen mejor que tú."),
+
+        DatoDelDia(tag: "Cámara · La audiencia imaginada",
+                   text: "Cuando grabas, tu cerebro activa la misma respuesta que ante un auditorio real — aunque la cámara esté apagada. Este mecanismo se llama 'audiencia imaginada' y es el principal generador de ansiedad al crear contenido. La solución no es calmarlo: es exponerse hasta que el cerebro aprenda que la amenaza no llega."),
+
+        DatoDelDia(tag: "Cámara · La lente distorsiona",
+                   text: "Las lentes de los smartphones tienen distorsión de gran angular — ensanchan ligeramente la zona central del plano. Lo que ves de ti mismo en una grabación con la cámara delantera no es tu apariencia real: es una versión matemáticamente distorsionada. Los demás te ven con sus ojos, no con una lente de 24mm."),
+
+        DatoDelDia(tag: "Cámara · Imperfección y conexión",
+                   text: "Investigación en psicología social (Aronson, 1966 — Pratfall Effect) muestra que cometer errores perceptibles aumenta el atractivo percibido en personas competentes. En creadores de contenido, los momentos de torpeza auténtica generan más identificación y mayor retención de audiencia que los vídeos pulidos. La imperfección no te resta — te hace humano."),
+
+        DatoDelDia(tag: "Cámara · La permanencia que no existe",
+                   text: "El contenido digital se percibe como permanente, pero el 95% del engagement ocurre en las primeras 72 horas. Después, el algoritmo lo entierra. Lo que a ti te parece un registro eterno de tu vergüenza, en la práctica tiene la vida útil de un periódico de hace tres días. El miedo a la permanencia es real. La permanencia en sí, mucho menos."),
+
+        DatoDelDia(tag: "Cámara · Relaciones parasociales",
+                   text: "Las audiencias desarrollan vínculos emocionales asimétricos con creadores que se muestran como son — a esto se le llama relación parasocial. La investigación de Horton y Wohl (1956) y estudios modernos coinciden: la autenticidad imperfecta genera vínculos más fuertes que la producción perfecta. La gente no sigue personas ideales. Sigue personas reales."),
+
+        DatoDelDia(tag: "Cámara · El ciclo de la evitación",
+                   text: "Cada vez que decides no grabar porque 'no estás listo', refuerzas el circuito de evitación-alivio. El alivio que sientes al no grabar es real — y por eso el cerebro lo repite. Pero ese alivio tiene un coste: el miedo crece con cada evitación. La única forma de romper el ciclo es entrar, aunque sea imperfectamente."),
+
+        DatoDelDia(tag: "Cámara · La autocrítica como sesgo",
+                   text: "Cuando te ves en un vídeo, activas la corteza prefrontal medial — la zona asociada a la autoevaluación social. Esto genera un sesgo sistemático: percibes más defectos en ti mismo que en cualquier otro observador externo. Lo que tú ves cuando te miras no es objetivo. Es una evaluación hipercríticamente sesgada hacia el negativo."),
     ]
 }

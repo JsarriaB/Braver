@@ -3,7 +3,7 @@ import SwiftUI
 struct HoyView: View {
     @StateObject private var streakService = StreakService.shared
     @StateObject private var historyService = ChallengeHistoryService.shared
-    @State private var userName = UserDefaults.standard.string(forKey: "braver_user_name") ?? "Tú"
+    @AppStorage("braver_user_name") private var userName = "Tú"
     @State private var challengeAccepted = false
     @State private var challengeRecorded = false
     @State private var showReflectionModal = false
@@ -12,6 +12,7 @@ struct HoyView: View {
     @State private var dragOffset: CGFloat = 0
     @State private var todaysOptions: [DailyChallenge] = []
     @State private var challengeSwapped = false
+    @State private var showAjustes = false
 
     var todayChallenge: DailyChallenge? {
         guard !todaysOptions.isEmpty else { return nil }
@@ -61,7 +62,9 @@ struct HoyView: View {
             .navigationBarHidden(true)
         }
         .sheet(isPresented: $showReflectionModal) {
-            ReflexionModal(isPresented: $showReflectionModal)
+            ReflexionModal(isPresented: $showReflectionModal) { suds, mood in
+                historyService.updateLatest(suds: suds, mood: mood)
+            }
         }
         .sheet(isPresented: $showPledge) {
             if let challenge = todayChallenge {
@@ -71,10 +74,12 @@ struct HoyView: View {
                 }
             }
         }
+        .sheet(isPresented: $showAjustes) {
+            AjustesView()
+        }
         .onAppear {
             streakService.registerAppOpen()
             featuredOrbIndex = currentStageIndex
-            userName = UserDefaults.standard.string(forKey: "braver_user_name") ?? "Tú"
 
             let today = Calendar.current.startOfDay(for: Date())
 
@@ -119,6 +124,16 @@ struct HoyView: View {
             }
             Spacer()
             streakBadge
+            Button {
+                showAjustes = true
+            } label: {
+                Image(systemName: "gearshape.fill")
+                    .font(.system(size: 18))
+                    .foregroundColor(BraverTheme.textTertiary)
+                    .padding(10)
+                    .background(BraverTheme.surfaceElevated)
+                    .clipShape(Circle())
+            }
         }
         .padding(.top, 8)
     }
@@ -463,6 +478,7 @@ struct HoyView: View {
 
 struct ReflexionModal: View {
     @Binding var isPresented: Bool
+    var onSave: ((Int, String?) -> Void)? = nil
     @State private var sudsValue: Double = 40
     @State private var outcomeText = ""
     @State private var selectedEmoji: String? = nil
@@ -564,6 +580,7 @@ struct ReflexionModal: View {
 
                     // Save button
                     Button("Guardar reflexión") {
+                        onSave?(Int(sudsValue), selectedEmoji)
                         isPresented = false
                     }
                     .buttonStyle(BraverPrimaryButton())
