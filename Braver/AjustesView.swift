@@ -316,9 +316,9 @@ struct AjustesView: View {
         VStack(alignment: .leading, spacing: BraverTheme.itemSpacing) {
             SectionHeader(title: "Legal")
             VStack(spacing: 0) {
-                legalRow(title: "Política de privacidad", icon: "hand.raised.fill", url: "https://www.iubenda.com/privacy-policy/17508473")
+                legalRow(title: "Política de privacidad", icon: "hand.raised.fill", url: "https://jsarriab.github.io/Braver/docs/privacy-policy")
                 Divider().background(BraverTheme.surfaceBorder)
-                legalRow(title: "Términos y condiciones", icon: "doc.text.fill", url: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")
+                legalRow(title: "Términos y condiciones", icon: "doc.text.fill", url: "https://jsarriab.github.io/Braver/docs/terms-and-conditions")
             }
             .braverCard(elevated: true)
         }
