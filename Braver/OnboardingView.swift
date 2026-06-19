@@ -387,6 +387,21 @@ struct OnboardingView: View {
         if !ageTrimmed.isEmpty {
             UserDefaults.standard.set(ageTrimmed, forKey: "braver_user_age")
         }
+
+        // Bypass para modo demo (revisión App Store)
+        if UserDefaults.standard.bool(forKey: "braver_demo_mode") {
+            UserDefaults.standard.set(true, forKey: "braver_onboarding_completed")
+            Task {
+                await UserService.shared.createOrUpdateProfile(
+                    name: UserDefaults.standard.string(forKey: "braver_user_name"),
+                    age: UserDefaults.standard.string(forKey: "braver_user_age")
+                )
+                await UserService.shared.markOnboardingComplete()
+            }
+            onCompleted()
+            return
+        }
+
         let handler = PaywallPresentationHandler()
         handler.onDismiss { _, result in
             print("🟡 campaign_trigger dismissed with result:", result)
@@ -622,6 +637,7 @@ private struct BraverCardRevealScreen: View {
                 }
                 .padding(.top, 72)
             }
+            .frame(width: geo.size.width, height: geo.size.height)
         }
         .ignoresSafeArea()
         .onAppear { typePhrase(at: 0) }
@@ -2629,6 +2645,7 @@ private struct WelcomeScreen: View {
                 }
                 .frame(width: geo.size.width)
             }
+            .frame(width: geo.size.width, height: geo.size.height)
         }
         .ignoresSafeArea()
     }
@@ -3801,6 +3818,8 @@ private struct AccountCreationScreen: View {
 
     @State private var isLoading = false
     @State private var errorMessage: String? = nil
+    @State private var showDemoCode = false
+    @State private var demoCodeInput = ""
 
     var title: String { mode == .create ? "Guarda tu progreso" : "Iniciar sesión" }
     var subtitle: String { mode == .create
@@ -3922,6 +3941,38 @@ private struct AccountCreationScreen: View {
                             )
                         }
 
+                        // Código de acceso (para revisión App Store)
+                        if showDemoCode {
+                            HStack(spacing: 8) {
+                                TextField("Código de acceso", text: $demoCodeInput)
+                                    .font(.system(size: 15, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .autocorrectionDisabled()
+                                    .textInputAutocapitalization(.never)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 12)
+                                    .background(Color.white.opacity(0.07))
+                                    .cornerRadius(10)
+                                Button("Activar") {
+                                    if demoCodeInput.uppercased() == "BRAVERDEMO2024" {
+                                        UserDefaults.standard.set(true, forKey: "braver_demo_mode")
+                                        onContinue()
+                                    }
+                                }
+                                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                .foregroundColor(BraverTheme.accent)
+                            }
+                            .transition(.opacity)
+                        } else {
+                            Button {
+                                withAnimation(.easeInOut(duration: 0.2)) { showDemoCode = true }
+                            } label: {
+                                Text("Código de acceso")
+                                    .font(.system(size: 13, weight: .regular, design: .rounded))
+                                    .foregroundColor(Color(hex: "475569"))
+                            }
+                        }
+
                         if let err = errorMessage {
                             Text(err)
                                 .font(.system(size: 13, design: .rounded))
@@ -3949,6 +4000,7 @@ private struct AccountCreationScreen: View {
                     .padding(.bottom, 40)
                 }
             }
+            .frame(width: geo.size.width, height: geo.size.height)
         }
         .ignoresSafeArea()
     }
