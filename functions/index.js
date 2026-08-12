@@ -2,8 +2,13 @@ const {onRequest} = require("firebase-functions/v2/https");
 const {defineSecret} = require("firebase-functions/params");
 const {initializeApp} = require("firebase-admin/app");
 const {getAppCheck} = require("firebase-admin/app-check");
+const {getAuth} = require("firebase-admin/auth");
 const {getFirestore, FieldValue, Timestamp} = require("firebase-admin/firestore");
 const crypto = require("crypto");
+
+// Decisión de seguridad propia (no una regla oficial de Apple/Firebase): si el
+// login del usuario no es reciente, exigimos reautenticación antes de borrar la cuenta.
+const REAUTH_MAX_AGE_SECONDS = 5 * 60;
 
 const OPENAI_API_KEY = defineSecret("OPENAI_API_KEY");
 const SUPERWALL_WEBHOOK_SECRET = defineSecret("SUPERWALL_WEBHOOK_SECRET");
@@ -194,3 +199,71 @@ exports.novaChat = onRequest(
     }
   }
 );
+
+exports.deleteAccount = onRequest(async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Firebase-AppCheck");
+
+  if (req.method === "OPTIONS") {
+    res.status(204).send("");
+    return;
+  }
+  if (req.method !== "POST") {
+    res.status(405).json({error: "Method not allowed"});
+    return;
+  }
+
+  // Verificar App Check (autenticidad de la app, no del usuario)
+  const appCheckToken = req.headers["x-firebase-appcheck"];
+  if (!appCheckToken) {
+    res.status(401).json({error: "Unauthorized"});
+    return;
+  }
+  try {
+    await getAppCheck().verifyToken(appCheckToken);
+  } catch (err) {
+    res.status(401).json({error: "Unauthorized"});
+    return;
+  }
+
+  // Verificar el ID token real del usuario — el uid sale del token verificado,
+  // nunca de un valor enviado sin más por el cliente.
+  const authHeader = req.headers["authorization"] || "";
+  const idToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+  if (!idToken) {
+    res.status(401).json({error: "MISSING_ID_TOKEN"});
+    return;
+  }
+
+  let decodedToken;
+  try {
+    decodedToken = await getAuth().verifyIdToken(idToken);
+  } catch (err) {
+    res.status(401).json({error: "INVALID_ID_TOKEN"});
+    return;
+  }
+
+  const {uid, auth_time: authTime} = decodedToken;
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  if (nowSeconds - authTime > REAUTH_MAX_AGE_SECONDS) {
+    res.status(403).json({error: "REAUTH_REQUIRED"});
+    return;
+  }
+
+  try {
+    // Borra el documento del usuario y todas sus subcolecciones (checkins, completions, subscription...)
+    await db.recursiveDelete(db.collection("users").doc(uid));
+
+    // Borra el contador de mensajes de Nova asociado a este uid
+    const usageSnapshot = await db.collection("novaUsage").where("uid", "==", uid).get();
+    await Promise.all(usageSnapshot.docs.map((doc) => doc.ref.delete()));
+
+    // Borra el usuario de Firebase Auth
+    await getAuth().deleteUser(uid);
+
+    res.status(200).json({success: true});
+  } catch (error) {
+    res.status(500).json({error: "DELETE_FAILED", details: error.message});
+  }
+});

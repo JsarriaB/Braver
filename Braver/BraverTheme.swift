@@ -5,13 +5,23 @@ import SwiftUI
 enum BraverTheme {
 
     // MARK: Colors
-    static let background       = Color(hex: "050507")
-    static let surface          = Color(hex: "0E0F14")
-    static let surfaceElevated  = Color(hex: "161820")
-    static let surfaceBorder    = Color.white.opacity(0.07)
+    static let background       = Color(hex: "050508")
+    static let surface          = Color(hex: "0C0D14")
+    static let surfaceElevated  = Color(hex: "141520")
+    static let surfaceBorder    = Color.white.opacity(0.09)
 
-    static let accent           = Color(hex: "4C9EEB")   // azul – calma
+    // Accent — familia azul royal
+    static let accent           = Color(hex: "5B9CF6")   // azul royal – calma
+    static let accentDeep       = Color(hex: "2563EB")   // para gradientes
+    static let accentGlow       = Color(hex: "3B82F6")   // para glow effects
+
+    // Ambient — familia azul-índigo coherente con accent
+    static let ambientCore      = Color(hex: "1E3A8A")   // azul profundo – blob principal
+    static let ambientMid       = Color(hex: "1D4ED8")   // azul medio – blob secundario
+    static let ambientDeep      = Color(hex: "3730A3")   // índigo – tercer blob
+
     static let bravura          = Color(hex: "F97316")   // naranja – valor/acción
+    static let bravuraDeep      = Color(hex: "C2500A")   // para gradientes bravura
     static let success          = Color(hex: "10B981")   // verde
     static let warning          = Color(hex: "F59E0B")   // ámbar
     static let danger           = Color(hex: "EF4444")   // rojo
@@ -102,11 +112,26 @@ struct BraverCardModifier: ViewModifier {
     var elevated: Bool = false
     func body(content: Content) -> some View {
         content
-            .background(elevated ? BraverTheme.surfaceElevated : BraverTheme.surface)
+            .background(
+                ZStack {
+                    elevated ? BraverTheme.surfaceElevated : BraverTheme.surface
+                    Color.white.opacity(elevated ? 0.035 : 0.022)
+                }
+            )
             .cornerRadius(BraverTheme.radiusMedium)
             .overlay(
                 RoundedRectangle(cornerRadius: BraverTheme.radiusMedium)
-                    .stroke(BraverTheme.surfaceBorder, lineWidth: 1)
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(elevated ? 0.18 : 0.12),
+                                Color.white.opacity(0.04)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
             )
     }
 }
@@ -115,13 +140,25 @@ struct BraverCardGlowModifier: ViewModifier {
     var color: Color
     func body(content: Content) -> some View {
         content
-            .background(Color(hex: "0E1120"))   // ligeramente más claro y azulado
+            .background(
+                ZStack {
+                    Color(hex: "0A0D1A")
+                    color.opacity(0.06)
+                }
+            )
             .cornerRadius(BraverTheme.radiusMedium)
             .overlay(
                 RoundedRectangle(cornerRadius: BraverTheme.radiusMedium)
-                    .stroke(color.opacity(0.28), lineWidth: 1)
+                    .stroke(
+                        LinearGradient(
+                            colors: [color.opacity(0.45), color.opacity(0.12)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1.5
+                    )
             )
-            .shadow(color: color.opacity(0.08), radius: 12, x: 0, y: 4)
+            .shadow(color: color.opacity(0.20), radius: 20, x: 0, y: 6)
     }
 }
 
@@ -138,15 +175,35 @@ extension View {
 
 struct BraverPrimaryButton: ButtonStyle {
     var color: Color = BraverTheme.accent
+    var deepColor: Color = BraverTheme.accentDeep
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 17, weight: .semibold, design: .rounded))
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
-            .background(color)
-            .cornerRadius(BraverTheme.radiusPill)
+            .background(
+                LinearGradient(
+                    colors: [color, deepColor],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .cornerRadius(BraverTheme.radiusPill)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: BraverTheme.radiusPill)
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.white.opacity(0.22), Color.clear],
+                            startPoint: .top,
+                            endPoint: .center
+                        )
+                    )
+            )
+            .shadow(color: color.opacity(0.38), radius: 12, x: 0, y: 4)
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .brightness(configuration.isPressed ? -0.04 : 0)
             .animation(.spring(response: 0.2, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }
@@ -158,11 +215,13 @@ struct BraverGhostButton: ButtonStyle {
             .foregroundColor(BraverTheme.textSecondary)
             .padding(.vertical, 12)
             .padding(.horizontal, 20)
-            .background(BraverTheme.surface)
-            .cornerRadius(BraverTheme.radiusPill)
+            .background(
+                Color.white.opacity(0.06)
+                    .cornerRadius(BraverTheme.radiusPill)
+            )
             .overlay(
                 RoundedRectangle(cornerRadius: BraverTheme.radiusPill)
-                    .stroke(BraverTheme.surfaceBorder, lineWidth: 1)
+                    .stroke(Color.white.opacity(0.12), lineWidth: 1)
             )
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(.spring(response: 0.2, dampingFraction: 0.7), value: configuration.isPressed)
@@ -177,18 +236,29 @@ struct StatChip: View {
     let color: Color
 
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 6) {
             Text(value)
-                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .font(.system(size: 26, weight: .heavy, design: .rounded))
                 .foregroundColor(color)
             Text(label)
-                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .font(.system(size: 10, weight: .semibold, design: .rounded))
                 .foregroundColor(BraverTheme.textTertiary)
                 .multilineTextAlignment(.center)
+                .tracking(0.3)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
-        .braverCard(elevated: true)
+        .padding(.vertical, 18)
+        .background(
+            ZStack {
+                BraverTheme.surfaceElevated
+                color.opacity(0.06)
+            }
+        )
+        .cornerRadius(BraverTheme.radiusMedium)
+        .overlay(
+            RoundedRectangle(cornerRadius: BraverTheme.radiusMedium)
+                .stroke(color.opacity(0.20), lineWidth: 1)
+        )
     }
 }
 
@@ -215,14 +285,18 @@ struct SectionHeader: View {
     var onAction: (() -> Void)? = nil
 
     var body: some View {
-        HStack {
+        HStack(alignment: .center, spacing: 10) {
+            RoundedRectangle(cornerRadius: 2)
+                .fill(BraverTheme.accent)
+                .frame(width: 3, height: 18)
+
             Text(title)
-                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                .font(.system(size: 18, weight: .bold, design: .rounded))
                 .foregroundColor(BraverTheme.textPrimary)
             Spacer()
             if let action, let onAction {
                 Button(action, action: onAction)
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
                     .foregroundColor(BraverTheme.accent)
             }
         }

@@ -103,15 +103,19 @@ class StreakService: ObservableObject {
         recordActivity()
     }
 
-    // MARK: - Solo para debug/testing
+    // MARK: - Reset (borrado de cuenta / debug)
 
     func reset() {
         streakDays = 0
         orbProgressDays = 0
+        momentosBraver = 0
+        activityDates = []
         UserDefaults.standard.removeObject(forKey: streakKey)
         UserDefaults.standard.removeObject(forKey: orbKey)
         UserDefaults.standard.removeObject(forKey: lastOpenKey)
         UserDefaults.standard.removeObject(forKey: lastCompleteKey)
+        UserDefaults.standard.removeObject(forKey: momentosKey)
+        UserDefaults.standard.removeObject(forKey: activityDatesKey)
     }
 }
 

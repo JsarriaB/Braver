@@ -40,10 +40,6 @@ struct HoyView: View {
                 headerSection
                     .padding(.horizontal, BraverTheme.screenPadding)
                     .padding(.bottom, 12)
-                    .background(BraverTheme.background)
-
-                Divider()
-                    .background(BraverTheme.surfaceBorder.opacity(0.4))
 
                 // Scrollable content
                 ScrollView(showsIndicators: false) {
@@ -114,12 +110,14 @@ struct HoyView: View {
 
     var headerSection: some View {
         HStack(alignment: .center) {
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(greeting)
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
                     .foregroundColor(BraverTheme.textTertiary)
+                    .tracking(0.5)
+                    .textCase(.uppercase)
                 Text(userName)
-                    .font(.system(size: 26, weight: .bold, design: .rounded))
+                    .font(.system(size: 30, weight: .heavy, design: .rounded))
                     .foregroundColor(BraverTheme.textPrimary)
             }
             Spacer()
@@ -128,11 +126,12 @@ struct HoyView: View {
                 showAjustes = true
             } label: {
                 Image(systemName: "gearshape.fill")
-                    .font(.system(size: 18))
+                    .font(.system(size: 15, weight: .medium))
                     .foregroundColor(BraverTheme.textTertiary)
-                    .padding(10)
-                    .background(BraverTheme.surfaceElevated)
+                    .frame(width: 36, height: 36)
+                    .background(Color.white.opacity(0.08))
                     .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.white.opacity(0.10), lineWidth: 1))
             }
         }
         .padding(.top, 8)
@@ -181,44 +180,84 @@ struct HoyView: View {
             return activeDayStarts.contains(calendar.startOfDay(for: dayDate))
         }
 
-        return HStack(spacing: 0) {
+        return HStack(spacing: 6) {
             ForEach(0..<7, id: \.self) { i in
                 let isToday = i == todayIndex
                 let isCompleted = completedDays[i]
+                let isFuture = i > todayIndex
 
                 VStack(spacing: 5) {
                     ZStack {
                         if isCompleted {
                             Circle()
+                                .fill(BraverTheme.accent.opacity(0.2))
+                                .frame(width: 38, height: 38)
+                            Circle()
                                 .fill(BraverTheme.accent)
                                 .frame(width: 30, height: 30)
                             Image(systemName: "checkmark")
-                                .font(.system(size: 10, weight: .bold))
+                                .font(.system(size: 11, weight: .black))
                                 .foregroundColor(.white)
                         } else if isToday {
                             Circle()
-                                .fill(BraverTheme.surfaceElevated)
+                                .fill(BraverTheme.accent.opacity(0.12))
                                 .frame(width: 30, height: 30)
                             Circle()
-                                .stroke(BraverTheme.accent, lineWidth: 2)
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [BraverTheme.accent, BraverTheme.accentDeep],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 2.5
+                                )
+                                .frame(width: 30, height: 30)
+                        } else if isFuture {
+                            Circle()
+                                .fill(Color.white.opacity(0.05))
                                 .frame(width: 30, height: 30)
                         } else {
                             Circle()
-                                .fill(BraverTheme.surfaceElevated)
+                                .fill(BraverTheme.danger.opacity(0.12))
                                 .frame(width: 30, height: 30)
+                            Image(systemName: "minus")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundColor(BraverTheme.danger.opacity(0.5))
                         }
                     }
+                    .frame(width: 38, height: 38)
 
                     Text(dayLabels[i])
-                        .font(.system(size: 10, weight: isToday ? .semibold : .regular, design: .rounded))
-                        .foregroundColor(isToday ? BraverTheme.accent : BraverTheme.textTertiary)
+                        .font(.system(size: 9, weight: isToday ? .bold : .medium, design: .rounded))
+                        .foregroundColor(
+                            isCompleted ? BraverTheme.accent :
+                            isToday ? BraverTheme.textPrimary :
+                            BraverTheme.textTertiary
+                        )
                 }
                 .frame(maxWidth: .infinity)
             }
         }
-        .padding(.vertical, 14)
-        .padding(.horizontal, 8)
-        .braverCard()
+        .padding(.vertical, 16)
+        .padding(.horizontal, 12)
+        .background(
+            ZStack {
+                BraverTheme.surface
+                Color.white.opacity(0.025)
+            }
+            .cornerRadius(BraverTheme.radiusLarge)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: BraverTheme.radiusLarge)
+                .stroke(
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.14), Color.white.opacity(0.04)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        )
     }
 
     // MARK: Orb section
@@ -344,95 +383,121 @@ struct HoyView: View {
             SectionHeader(title: "Misión de hoy")
 
             if let challenge = todayChallenge {
-                VStack(alignment: .leading, spacing: 16) {
-                    // Category + difficulty
-                    HStack(spacing: 8) {
-                        Text(challenge.categoryEmoji)
-                            .font(.system(size: 14))
-                        Text(challenge.category)
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
-                            .foregroundColor(BraverTheme.textSecondary)
-                        Spacer()
-                        Text(challenge.difficulty.rawValue)
-                            .font(.system(size: 11, weight: .semibold, design: .rounded))
-                            .foregroundColor(challenge.difficulty.color)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
-                            .background(challenge.difficulty.color.opacity(0.15))
-                            .cornerRadius(BraverTheme.radiusPill)
-                    }
+                VStack(alignment: .leading, spacing: 0) {
+                    // Accent strip superior
+                    LinearGradient(
+                        colors: [BraverTheme.accent.opacity(0.7), BraverTheme.accentDeep.opacity(0.4)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(height: 3)
+                    .clipShape(UnevenRoundedRectangle(
+                        topLeadingRadius: BraverTheme.radiusMedium,
+                        topTrailingRadius: BraverTheme.radiusMedium
+                    ))
 
-                    Text(challenge.title)
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
-                        .foregroundColor(BraverTheme.textPrimary)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    Text(challenge.subtitle)
-                        .font(.system(size: 14, weight: .regular, design: .rounded))
-                        .foregroundColor(BraverTheme.textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    Divider()
-                        .background(BraverTheme.surfaceBorder)
-
-                    if challengeAccepted && challengeRecorded {
-                        Text("Reto registrado hoy. ¡Buen trabajo!")
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
-                            .foregroundColor(BraverTheme.success)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                    } else if challengeAccepted {
-                        HStack(spacing: 12) {
-                            Button {
-                                streakService.registerChallengeCompleted()
-                                if let c = todayChallenge {
-                                    historyService.record(challenge: c, status: .completed)
-                                }
-                                withAnimation(.spring(response: 0.3)) { challengeRecorded = true }
-                                UserDefaults.standard.set(Date(), forKey: "braver_challenge_recorded_date")
-                                showReflectionModal = true
-                            } label: {
-                                Label("Ya lo hice", systemImage: "checkmark")
-                            }
-                            .buttonStyle(BraverPrimaryButton(color: BraverTheme.success))
-
-                            Button("Lo intenté") {
-                                streakService.recordActivity()
-                                if let c = todayChallenge {
-                                    historyService.record(challenge: c, status: .attempted)
-                                }
-                                withAnimation(.spring(response: 0.3)) { challengeRecorded = true }
-                                UserDefaults.standard.set(Date(), forKey: "braver_challenge_recorded_date")
-                                showReflectionModal = true
-                            }
-                            .buttonStyle(BraverGhostButton())
+                    VStack(alignment: .leading, spacing: 16) {
+                        // Category + difficulty
+                        HStack(spacing: 8) {
+                            Text(challenge.categoryEmoji)
+                                .font(.system(size: 14))
+                            Text(challenge.category)
+                                .font(.system(size: 13, weight: .medium, design: .rounded))
+                                .foregroundColor(BraverTheme.textSecondary)
+                            Spacer()
+                            Text(challenge.difficulty.rawValue)
+                                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                .foregroundColor(challenge.difficulty.color)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 4)
+                                .background(challenge.difficulty.color.opacity(0.15))
+                                .cornerRadius(BraverTheme.radiusPill)
                         }
-                    } else {
-                        VStack(spacing: 10) {
-                            Button("Lo intento hoy  →") {
-                                showPledge = true
-                            }
-                            .buttonStyle(BraverPrimaryButton())
 
-                            if !challengeSwapped && todaysOptions.count > 1 {
-                                Button("Ver otro reto") {
-                                    withAnimation(.spring(response: 0.3)) {
-                                        challengeSwapped = true
+                        Text(challenge.title)
+                            .font(.system(size: 17, weight: .semibold, design: .rounded))
+                            .foregroundColor(BraverTheme.textPrimary)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        Text(challenge.subtitle)
+                            .font(.system(size: 14, weight: .regular, design: .rounded))
+                            .foregroundColor(BraverTheme.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        Divider()
+                            .background(BraverTheme.surfaceBorder)
+
+                        if challengeAccepted && challengeRecorded {
+                            Text("Reto registrado hoy. ¡Buen trabajo!")
+                                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                .foregroundColor(BraverTheme.success)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        } else if challengeAccepted {
+                            HStack(spacing: 12) {
+                                Button {
+                                    streakService.registerChallengeCompleted()
+                                    if let c = todayChallenge {
+                                        historyService.record(challenge: c, status: .completed)
                                     }
+                                    withAnimation(.spring(response: 0.3)) { challengeRecorded = true }
+                                    UserDefaults.standard.set(Date(), forKey: "braver_challenge_recorded_date")
+                                    showReflectionModal = true
+                                } label: {
+                                    Label("Ya lo hice", systemImage: "checkmark")
+                                }
+                                .buttonStyle(BraverPrimaryButton(color: BraverTheme.success, deepColor: Color(hex: "059669")))
+
+                                Button("Lo intenté") {
+                                    streakService.recordActivity()
+                                    if let c = todayChallenge {
+                                        historyService.record(challenge: c, status: .attempted)
+                                    }
+                                    withAnimation(.spring(response: 0.3)) { challengeRecorded = true }
+                                    UserDefaults.standard.set(Date(), forKey: "braver_challenge_recorded_date")
+                                    showReflectionModal = true
                                 }
                                 .buttonStyle(BraverGhostButton())
                             }
+                        } else {
+                            VStack(spacing: 10) {
+                                Button("Lo intento hoy  →") {
+                                    showPledge = true
+                                }
+                                .buttonStyle(BraverPrimaryButton())
+
+                                if !challengeSwapped && todaysOptions.count > 1 {
+                                    Button("Ver otro reto") {
+                                        withAnimation(.spring(response: 0.3)) {
+                                            challengeSwapped = true
+                                        }
+                                    }
+                                    .buttonStyle(BraverGhostButton())
+                                }
+                            }
+                        }
+
+                        if !challengeAccepted && !challengeRecorded {
+                            Text("Completar esto suma 1 día a tu orbe.")
+                                .font(.system(size: 12, design: .rounded))
+                                .foregroundColor(BraverTheme.textTertiary)
+                                .frame(maxWidth: .infinity, alignment: .center)
                         }
                     }
-
-                    if !challengeAccepted && !challengeRecorded {
-                        Text("Completar esto suma 1 día a tu orbe.")
-                            .font(.system(size: 12, design: .rounded))
-                            .foregroundColor(BraverTheme.textTertiary)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                    }
+                    .padding(BraverTheme.cardPadding)
                 }
-                .padding(BraverTheme.cardPadding)
-                .braverCard(elevated: true)
+                .background(BraverTheme.surfaceElevated)
+                .cornerRadius(BraverTheme.radiusMedium)
+                .overlay(
+                    RoundedRectangle(cornerRadius: BraverTheme.radiusMedium)
+                        .stroke(
+                            LinearGradient(
+                                colors: [Color.white.opacity(0.16), Color.white.opacity(0.04)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                )
             } else {
                 Text("Cargando misión...")
                     .font(.system(size: 15, design: .rounded))
@@ -450,26 +515,40 @@ struct HoyView: View {
         VStack(alignment: .leading, spacing: BraverTheme.itemSpacing) {
             SectionHeader(title: "Dato de hoy")
 
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 10) {
-                    Image(systemName: "lightbulb.fill")
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(spacing: 8) {
+                    ZStack {
+                        Circle()
+                            .fill(BraverTheme.warning.opacity(0.15))
+                            .frame(width: 32, height: 32)
+                        Image(systemName: "lightbulb.fill")
+                            .foregroundColor(BraverTheme.warning)
+                            .font(.system(size: 14, weight: .semibold))
+                    }
+                    Text(datoDelDia.tag.uppercased())
+                        .font(.system(size: 10, weight: .bold, design: .rounded))
                         .foregroundColor(BraverTheme.warning)
-                        .font(.system(size: 14))
-                    Text(datoDelDia.tag)
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
-                        .foregroundColor(BraverTheme.warning)
+                        .tracking(0.8)
                 }
 
                 Text(datoDelDia.text)
                     .font(.system(size: 16, weight: .medium, design: .rounded))
                     .foregroundColor(BraverTheme.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
-                    .lineSpacing(3)
-
-
+                    .lineSpacing(4)
             }
             .padding(BraverTheme.cardPadding)
-            .braverCard(elevated: true)
+            .background(
+                ZStack {
+                    BraverTheme.surfaceElevated
+                    BraverTheme.warning.opacity(0.05)
+                }
+            )
+            .cornerRadius(BraverTheme.radiusMedium)
+            .overlay(
+                RoundedRectangle(cornerRadius: BraverTheme.radiusMedium)
+                    .stroke(BraverTheme.warning.opacity(0.18), lineWidth: 1)
+            )
         }
     }
 }
@@ -505,7 +584,7 @@ struct ReflexionModal: View {
                     // SUDS slider
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
-                            Text("¿Cuánta ansiedad sentiste?")
+                            Text("¿Qué nivel de reto sentiste?")
                                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                                 .foregroundColor(BraverTheme.textPrimary)
                             Spacer()

@@ -57,10 +57,18 @@ struct GuiaView: View {
                         Text(tab)
                             .font(.system(size: 15, weight: selectedTab == idx ? .semibold : .regular, design: .rounded))
                             .foregroundColor(selectedTab == idx ? BraverTheme.textPrimary : BraverTheme.textTertiary)
-                        Rectangle()
-                            .fill(selectedTab == idx ? BraverTheme.accent : Color.clear)
-                            .frame(height: 2)
-                            .cornerRadius(1)
+                        RoundedRectangle(cornerRadius: 1.5)
+                            .fill(
+                                LinearGradient(
+                                    colors: selectedTab == idx
+                                        ? [BraverTheme.accent, BraverTheme.accentDeep]
+                                        : [Color.clear, Color.clear],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(height: 2.5)
+                            .animation(.spring(response: 0.3), value: selectedTab)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
@@ -218,16 +226,22 @@ struct ModuleCard: View {
                 }
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 3)
+                        RoundedRectangle(cornerRadius: 4)
                             .fill(Color.white.opacity(0.06))
-                            .frame(height: 3)
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(module.color)
-                            .frame(width: geo.size.width * progressFraction, height: 3)
+                            .frame(height: 5)
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(
+                                LinearGradient(
+                                    colors: [module.color, module.color.opacity(0.6)],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(width: geo.size.width * progressFraction, height: 5)
                             .animation(.spring(response: 0.4), value: progressFraction)
                     }
                 }
-                .frame(height: 3)
+                .frame(height: 5)
             }
         }
         .padding(BraverTheme.cardPadding)
@@ -674,7 +688,23 @@ struct ChatBubble: View {
                 .foregroundColor(message.isUser ? .white : BraverTheme.textPrimary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
-                .background(message.isUser ? BraverTheme.accent : BraverTheme.surfaceElevated)
+                .background(
+                    Group {
+                        if message.isUser {
+                            LinearGradient(
+                                colors: [BraverTheme.accent, BraverTheme.accentDeep],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        } else {
+                            LinearGradient(
+                                colors: [BraverTheme.surfaceElevated, BraverTheme.surfaceElevated],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        }
+                    }
+                )
                 .cornerRadius(18)
                 .cornerRadius(message.isUser ? 4 : 18, corners: message.isUser ? .bottomRight : .bottomLeft)
                 .fixedSize(horizontal: false, vertical: true)
@@ -839,7 +869,7 @@ struct FuentesView: View {
                         }
                     }
 
-                    Text("Braver es una herramienta de desarrollo personal. No sustituye el diagnóstico ni el tratamiento de un profesional de salud mental.")
+                    Text("Braver es una herramienta de desarrollo personal. No sustituye la atención ni el seguimiento de un profesional de salud mental.")
                         .font(.system(size: 12, design: .rounded))
                         .foregroundColor(BraverTheme.textTertiary)
                         .multilineTextAlignment(.center)

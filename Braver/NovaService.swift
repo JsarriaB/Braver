@@ -81,7 +81,7 @@ class NovaService: ObservableObject {
         let userText = """
         Situación: \(situacion)
         Principal preocupación: \(preocupacion)
-        SUDS ahora mismo: \(suds)/100\(contexto.isEmpty ? "" : "\nContexto extra: \(contexto)")
+        Nivel de reto ahora mismo: \(suds)/100\(contexto.isEmpty ? "" : "\nContexto extra: \(contexto)")
         """
         let messages: [[String: String]] = [
             ["role": "system", "content": Self.preparateSystemPrompt],

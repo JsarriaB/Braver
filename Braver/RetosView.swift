@@ -66,10 +66,18 @@ struct RetosView: View {
                         Text(tab)
                             .font(.system(size: 15, weight: selectedTab == idx ? .semibold : .regular, design: .rounded))
                             .foregroundColor(selectedTab == idx ? BraverTheme.textPrimary : BraverTheme.textTertiary)
-                        Rectangle()
-                            .fill(selectedTab == idx ? BraverTheme.accent : Color.clear)
-                            .frame(height: 2)
-                            .cornerRadius(1)
+                        RoundedRectangle(cornerRadius: 1.5)
+                            .fill(
+                                LinearGradient(
+                                    colors: selectedTab == idx
+                                        ? [BraverTheme.accent, BraverTheme.accentDeep]
+                                        : [Color.clear, Color.clear],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(height: 2.5)
+                            .animation(.spring(response: 0.3), value: selectedTab)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
@@ -156,11 +164,27 @@ struct RetosView: View {
                 .foregroundColor(selected ? .white : BraverTheme.textSecondary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
-                .background(selected ? BraverTheme.accent : BraverTheme.surfaceElevated)
-                .cornerRadius(BraverTheme.radiusPill)
+                .background(
+                    Group {
+                        if selected {
+                            LinearGradient(
+                                colors: [BraverTheme.accent, BraverTheme.accentDeep],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        } else {
+                            LinearGradient(
+                                colors: [BraverTheme.surfaceElevated, BraverTheme.surfaceElevated],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        }
+                    }
+                    .cornerRadius(BraverTheme.radiusPill)
+                )
                 .overlay(
                     RoundedRectangle(cornerRadius: BraverTheme.radiusPill)
-                        .stroke(selected ? Color.clear : BraverTheme.surfaceBorder, lineWidth: 1)
+                        .stroke(selected ? Color.clear : Color.white.opacity(0.09), lineWidth: 1)
                 )
         }
         .animation(.spring(response: 0.2), value: selected)
@@ -254,11 +278,13 @@ struct BibliotecaRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Text(challenge.categoryEmoji)
-                .font(.system(size: 22))
-                .frame(width: 40, height: 40)
-                .background(BraverTheme.surfaceElevated)
-                .cornerRadius(10)
+            ZStack {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(challenge.difficulty.color.opacity(0.12))
+                    .frame(width: 44, height: 44)
+                Text(challenge.categoryEmoji)
+                    .font(.system(size: 22))
+            }
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(challenge.title)

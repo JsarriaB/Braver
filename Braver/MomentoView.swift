@@ -80,16 +80,16 @@ private struct ModoEntradaView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            VStack(spacing: 6) {
+            VStack(spacing: 8) {
                 Text("Braver")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(.system(size: 36, weight: .heavy, design: .rounded))
                     .foregroundColor(BraverTheme.textPrimary)
                 Text("¿Qué necesitas ahora mismo?")
-                    .font(.system(size: 14, design: .rounded))
+                    .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundColor(BraverTheme.textSecondary)
             }
-            .padding(.top, 20)
-            .padding(.bottom, 40)
+            .padding(.top, 28)
+            .padding(.bottom, 48)
 
             HStack(spacing: 14) {
                 ModoCard(
@@ -129,37 +129,75 @@ private struct ModoCard: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 0) {
-                Spacer().frame(height: 28)
                 ZStack {
+                    // Glow difuso de fondo
                     Circle()
-                        .fill(accent.opacity(0.13))
-                        .frame(width: 68, height: 68)
+                        .fill(accent.opacity(0.18))
+                        .frame(width: 100, height: 100)
+                        .blur(radius: 24)
+
+                    // Círculo base con gradiente radial
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [accent.opacity(0.28), accent.opacity(0.08)],
+                                center: .center,
+                                startRadius: 8,
+                                endRadius: 48
+                            )
+                        )
+                        .frame(width: 76, height: 76)
+                        .overlay(
+                            Circle()
+                                .stroke(accent.opacity(pressed ? 0.55 : 0.35), lineWidth: 1.5)
+                        )
+
                     Image(systemName: icon)
-                        .font(.system(size: 26, weight: .semibold))
+                        .font(.system(size: 28, weight: .semibold))
                         .foregroundColor(accent)
+                        .shadow(color: accent.opacity(0.5), radius: 6, x: 0, y: 2)
                 }
-                Spacer().frame(height: 16)
+                .padding(.top, 32)
+                .padding(.bottom, 20)
+
                 Text(title)
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundColor(BraverTheme.textPrimary)
-                Spacer().frame(height: 8)
+                    .padding(.bottom, 8)
+
                 Text(description)
-                    .font(.system(size: 13, design: .rounded))
+                    .font(.system(size: 13, weight: .regular, design: .rounded))
                     .foregroundColor(BraverTheme.textSecondary)
                     .multilineTextAlignment(.center)
-                    .lineSpacing(2)
-                Spacer().frame(height: 28)
+                    .lineSpacing(3)
+                    .padding(.bottom, 32)
             }
             .frame(maxWidth: .infinity)
-            .background(BraverTheme.surface)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(accent.opacity(pressed ? 0.55 : 0.28), lineWidth: 1.5)
+            .background(
+                ZStack {
+                    BraverTheme.surface
+                    accent.opacity(0.05)
+                }
             )
+            .cornerRadius(24)
+            .overlay(
+                RoundedRectangle(cornerRadius: 24)
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                accent.opacity(pressed ? 0.65 : 0.35),
+                                accent.opacity(0.10)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1.5
+                    )
+            )
+            .shadow(color: accent.opacity(pressed ? 0.15 : 0.08), radius: 20, x: 0, y: 8)
         }
         .buttonStyle(PlainButtonStyle())
-        .scaleEffect(pressed ? 0.96 : 1.0)
+        .scaleEffect(pressed ? 0.95 : 1.0)
         .animation(.spring(response: 0.22, dampingFraction: 0.7), value: pressed)
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
@@ -355,20 +393,32 @@ private struct ModoPanicoView: View {
                         }
                         startBreathing()
                     } label: {
-                        VStack(spacing: 8) {
-                            Text(String(s.prefix(2))).font(.system(size: 32))
+                        VStack(spacing: 10) {
+                            Text(String(s.prefix(2))).font(.system(size: 36))
                             Text(s.drop(while: { !$0.isWhitespace }).trimmingCharacters(in: .whitespaces))
-                                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                .font(.system(size: 12, weight: .bold, design: .rounded))
                                 .foregroundColor(BraverTheme.textPrimary)
                                 .multilineTextAlignment(.center)
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 20)
-                        .background(BraverTheme.surface)
-                        .cornerRadius(BraverTheme.radiusMedium)
+                        .padding(.vertical, 22)
+                        .background(
+                            ZStack {
+                                BraverTheme.surface
+                                Color.white.opacity(0.03)
+                            }
+                        )
+                        .cornerRadius(BraverTheme.radiusLarge)
                         .overlay(
-                            RoundedRectangle(cornerRadius: BraverTheme.radiusMedium)
-                                .stroke(BraverTheme.surfaceBorder, lineWidth: 1)
+                            RoundedRectangle(cornerRadius: BraverTheme.radiusLarge)
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [Color.white.opacity(0.12), Color.white.opacity(0.04)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 1
+                                )
                         )
                     }
                 }
@@ -454,7 +504,7 @@ private struct ModoPanicoView: View {
                             Text("Voy a por ello")
                         }
                     }
-                    .buttonStyle(BraverPrimaryButton(color: BraverTheme.bravura))
+                    .buttonStyle(BraverPrimaryButton(color: BraverTheme.bravura, deepColor: BraverTheme.bravuraDeep))
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
                 Button("Cambiar situación") {
@@ -750,8 +800,8 @@ private struct ModoPreparateView: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 28) {
                     stepHeader(
-                        title: "¿Cuánta ansiedad sientes ahora?",
-                        subtitle: "SUDS: 0 = calma total  ·  100 = máximo miedo."
+                        title: "¿Qué nivel de reto sientes ahora?",
+                        subtitle: "0 = calma total  ·  100 = al límite."
                     )
                     VStack(spacing: 18) {
                         HStack(alignment: .lastTextBaseline, spacing: 6) {
@@ -819,7 +869,7 @@ private struct ModoPreparateView: View {
                     HStack(spacing: 8) {
                         contextChip(label: situacion)
                         contextChip(label: preocupacion)
-                        contextChip(label: "SUDS \(Int(suds))")
+                        contextChip(label: "Nivel \(Int(suds))")
                     }
 
                     TextEditor(text: $contextoExtra)
@@ -960,7 +1010,7 @@ private struct ModoPreparateView: View {
                             Text("Voy a por ello")
                         }
                     }
-                    .buttonStyle(BraverPrimaryButton(color: accent))
+                    .buttonStyle(BraverPrimaryButton(color: accent, deepColor: BraverTheme.bravuraDeep))
                     .opacity(novaResponse.isEmpty ? 0.4 : 1)
                     .disabled(novaResponse.isEmpty)
                 }
@@ -1031,7 +1081,7 @@ private struct ModoPreparateView: View {
             }
         } catch {
             isLoadingNova = false
-            novaResponse = "No he podido conectar ahora mismo. Pero tienes lo que necesitas: situación identificada, preocupación clara, SUDS medido. Respira y actúa — observa qué pasa."
+            novaResponse = "No he podido conectar ahora mismo. Pero tienes lo que necesitas: situación identificada, preocupación clara, nivel de reto medido. Respira y actúa — observa qué pasa."
         }
     }
 
@@ -1114,12 +1164,36 @@ private struct PrepOption: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 20)
-            .background(isSelected ? accent.opacity(0.1) : BraverTheme.surface)
+            .background(
+                Group {
+                    if isSelected {
+                        LinearGradient(
+                            colors: [accent.opacity(0.18), accent.opacity(0.08)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    } else {
+                        LinearGradient(colors: [BraverTheme.surface, BraverTheme.surface], startPoint: .top, endPoint: .bottom)
+                    }
+                }
+            )
             .cornerRadius(BraverTheme.radiusMedium)
             .overlay(
                 RoundedRectangle(cornerRadius: BraverTheme.radiusMedium)
-                    .stroke(isSelected ? accent.opacity(0.5) : BraverTheme.surfaceBorder,
-                            lineWidth: isSelected ? 1.5 : 1)
+                    .stroke(
+                        isSelected
+                            ? LinearGradient(
+                                colors: [accent.opacity(0.6), accent.opacity(0.2)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                              )
+                            : LinearGradient(
+                                colors: [Color.white.opacity(0.10), Color.white.opacity(0.04)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                              ),
+                        lineWidth: isSelected ? 1.5 : 1
+                    )
             )
         }
         .buttonStyle(PlainButtonStyle())
@@ -1181,7 +1255,7 @@ private struct FollowUpSheet: View {
                     .font(.system(size: 24, weight: .bold, design: .rounded))
                     .foregroundColor(BraverTheme.textPrimary)
                 if let s = session {
-                    Text("Predijiste \(s.sudsPrediccion)/100 de ansiedad. ¿Cuánta fue realmente?")
+                    Text("Predijiste un \(s.sudsPrediccion)/100 de reto. ¿Cuánto fue realmente?")
                         .font(.system(size: 14, design: .rounded))
                         .foregroundColor(BraverTheme.textSecondary)
                 }

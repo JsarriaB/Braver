@@ -13,18 +13,18 @@ struct SplashView: View {
     var body: some View {
         ZStack {
             // Fondo negro
-            Color(hex: "050507").ignoresSafeArea()
+            Color(hex: "050508").ignoresSafeArea()
 
-            // Blobs teal — mismo estilo que ContentView
+            // Blobs azul-índigo — familia coherente con accent
             GeometryReader { geo in
                 Circle()
-                    .fill(Color(hex: "0E9090").opacity(0.20))
+                    .fill(BraverTheme.ambientCore.opacity(0.22))
                     .frame(width: 500, height: 500)
                     .offset(x: geo.size.width - 160, y: -160)
                     .blur(radius: 90)
 
                 Circle()
-                    .fill(Color(hex: "0B7A8A").opacity(0.14))
+                    .fill(BraverTheme.ambientMid.opacity(0.14))
                     .frame(width: 400, height: 400)
                     .offset(x: -100, y: geo.size.height * 0.55)
                     .blur(radius: 100)
@@ -36,7 +36,7 @@ struct SplashView: View {
                 // Logo — orbe con el color de la app
                 ZStack {
                     Circle()
-                        .fill(Color(hex: "0E9090").opacity(0.15))
+                        .fill(BraverTheme.ambientCore.opacity(0.15))
                         .frame(width: 100, height: 100)
                         .blur(radius: 20)
 

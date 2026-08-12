@@ -1,6 +1,6 @@
 # Política de Privacidad de Braver
 
-**Última actualización:** 8 de junio de 2026
+**Última actualización:** 11 de agosto de 2026
 
 ## 1. Responsable del tratamiento
 
@@ -19,7 +19,7 @@ En adelante, "nosotros", "nuestro" o "Braver".
 | Dato | Dónde se introduce | Finalidad |
 |------|--------------------|-----------|
 | Nombre | Onboarding (opcional) | Personalizar la experiencia |
-| Edad | Onboarding (opcional) | Verificar que cumples la edad mínima y personalizar el contenido |
+| Edad | Onboarding (opcional) | Personalizar el contenido |
 | Correo electrónico | Registro con email/contraseña (opcional) | Autenticación y recuperación de cuenta |
 | Nombre completo | Registro con Apple o Google (opcional) | Identificación de cuenta |
 
@@ -47,7 +47,7 @@ Los siguientes datos se guardan en tu iPhone mediante SwiftData y UserDefaults y
 
 ### 2.4 Conversaciones con Nova
 
-Los mensajes que envías a Nova se procesan mediante nuestro servidor (Firebase Cloud Functions) y se reenvían a la API de OpenAI para generar la respuesta. **Ni Braver ni OpenAI almacenan el contenido de estos mensajes** una vez finalizada la conversación. Solo guardamos el número de mensajes enviados ese día (para el límite diario). Las conversaciones se eliminan de la memoria al cerrar la app.
+Los mensajes que envías a Nova se procesan mediante nuestro servidor (Firebase Cloud Functions) y se reenvían a la API de OpenAI para generar la respuesta. **Braver no almacena el contenido de estos mensajes**: solo guardamos el número de mensajes enviados ese día (para el límite diario), y las conversaciones se eliminan de la memoria del dispositivo al cerrar la app. OpenAI, conforme a su política estándar de uso de datos de la API, puede conservar el contenido de los mensajes hasta 30 días con fines de prevención de abusos, sin usarlo para entrenar sus modelos.
 
 > **Importante:** No compartas en Nova información personal identificable como tu nombre completo, DNI, número de teléfono o datos bancarios.
 
@@ -55,7 +55,7 @@ Los mensajes que envías a Nova se procesan mediante nuestro servidor (Firebase 
 
 La app recopila y procesa información sobre tu ansiedad social, miedos, situaciones de estrés y bienestar emocional. Estos datos se consideran **datos de salud** bajo el Reglamento General de Protección de Datos (RGPD) y reciben una protección especial.
 
-- Los datos del onboarding (respuestas al cuestionario de diagnóstico) se usan exclusivamente para calcular tu perfil inicial y personalizar los retos. No se comparten con terceros.
+- Los datos del onboarding (tus respuestas al cuestionario inicial) se usan exclusivamente para personalizar tu plan de retos. No se comparten con terceros.
 - Los datos de SUDS (Subjective Units of Distress Scale) y el historial de retos permanecen en tu dispositivo.
 - El contenido de las conversaciones con Nova no se almacena.
 
@@ -72,7 +72,6 @@ La base legal para tratar esta categoría especial de datos es tu **consentimien
 | Datos de salud mental del onboarding | Consentimiento explícito (Art. 9.2.a RGPD) |
 | Límite de uso de Nova (conteo de mensajes) | Interés legítimo — prevenir abuso del servicio (Art. 6.1.f RGPD) |
 | Gestión de suscripciones | Ejecución de contrato (Art. 6.1.b RGPD) |
-| Analytics de uso de la app (Firebase Analytics) | Consentimiento (Art. 6.1.a RGPD) |
 
 ---
 
@@ -81,12 +80,10 @@ La base legal para tratar esta categoría especial de datos es tu **consentimien
 No vendemos tus datos personales a terceros. Compartimos datos únicamente con los siguientes proveedores de servicios, en la medida estrictamente necesaria:
 
 ### Firebase / Google LLC
-- **Servicio:** Autenticación, base de datos (Firestore), funciones de backend, seguridad (App Check), analytics de uso
+- **Servicio:** Autenticación, base de datos (Firestore), funciones de backend, seguridad (App Check)
 - **Datos compartidos:** UID, nombre, edad, email (si registras cuenta), estado de suscripción, conteo de mensajes Nova, datos de dispositivo
 - **País:** Estados Unidos (con garantías adecuadas: Cláusulas Contractuales Estándar)
 - **Política:** [https://firebase.google.com/support/privacy](https://firebase.google.com/support/privacy)
-
-> **Nota sobre Firebase Analytics:** El SDK de Firebase incluye Google App Measurement, que puede recopilar datos de uso anónimos (sesiones, eventos de app) y enviarlos a Google. Puedes revisar la configuración en [https://firebase.google.com/support/privacy](https://firebase.google.com/support/privacy).
 
 ### Google LLC (Sign in with Google)
 - **Servicio:** Autenticación opcional con tu cuenta de Google
@@ -101,7 +98,7 @@ No vendemos tus datos personales a terceros. Compartimos datos únicamente con l
 
 ### OpenAI OpCo LLC
 - **Servicio:** Procesamiento de mensajes de Nova (IA)
-- **Datos compartidos:** Contenido del mensaje enviado (sin identificadores personales). Los mensajes **no se almacenan** por OpenAI después de generar la respuesta (según su política de API sin retención)
+- **Datos compartidos:** Contenido del mensaje enviado (sin identificadores personales). OpenAI puede conservarlo hasta 30 días con fines de prevención de abusos, sin usarlo para entrenar sus modelos (política estándar de uso de datos de la API)
 - **País:** Estados Unidos
 - **Política:** [https://openai.com/policies/api-data-usage-policies](https://openai.com/policies/api-data-usage-policies)
 
@@ -120,7 +117,7 @@ No vendemos tus datos personales a terceros. Compartimos datos únicamente con l
 | Estado de suscripción | Mientras dure la relación contractual + el período legal requerido |
 | Conteo de mensajes Nova | 90 días desde la fecha del registro |
 | Datos en tu dispositivo (SwiftData) | Hasta que desinstales la app o uses "Eliminar todos mis datos" |
-| Logs de Firebase Analytics | Según la política de retención de Google (por defecto 2 meses) |
+| Contenido de mensajes con Nova en OpenAI | Hasta 30 días (política estándar de prevención de abusos de OpenAI) |
 
 ---
 
@@ -130,7 +127,7 @@ Bajo el RGPD y la LOPDGDD (Ley Orgánica 3/2018), tienes derecho a:
 
 - **Acceso:** Solicitar qué datos tenemos sobre ti
 - **Rectificación:** Corregir datos incorrectos
-- **Supresión ("derecho al olvido"):** Solicitar la eliminación de tus datos. También puedes hacerlo directamente desde la app en *Ajustes → Eliminar todos mis datos*
+- **Supresión ("derecho al olvido"):** Desde la app, en *Ajustes → Eliminar todos mis datos*, puedes borrar de forma inmediata los datos guardados en tu dispositivo (progreso, retos, preferencias). Para eliminar también tu cuenta y los datos asociados en nuestros servidores, escríbenos y lo haremos en un plazo máximo de 30 días
 - **Portabilidad:** Recibir tus datos en formato estructurado
 - **Oposición y limitación:** Oponerte a ciertos tratamientos o limitar su uso
 - **Retirada del consentimiento:** Puedes retirar tu consentimiento en cualquier momento sin que esto afecte a la licitud del tratamiento previo

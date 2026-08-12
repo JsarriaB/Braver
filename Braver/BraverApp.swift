@@ -74,6 +74,71 @@ extension Notification.Name {
     static let braverSubscriptionChanged = Notification.Name("braverSubscriptionChanged")
 }
 
+private struct SubscriptionLockedView: View {
+    let onRestore: () -> Void
+    let onStartOver: () -> Void
+
+    @State private var isRestoring = false
+
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+
+            VStack(spacing: 20) {
+                Spacer()
+
+                Image(systemName: "lock.fill")
+                    .font(.system(size: 32, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.5))
+
+                Text("Necesitas una suscripción activa para continuar")
+                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+
+                Spacer()
+
+                Button {
+                    Superwall.shared.register(placement: "campaign_trigger")
+                } label: {
+                    Text("Ver planes")
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 15)
+                        .background(Color.white)
+                        .cornerRadius(14)
+                }
+
+                Button {
+                    guard !isRestoring else { return }
+                    isRestoring = true
+                    onRestore()
+                    Task {
+                        try? await Task.sleep(for: .seconds(1.5))
+                        await MainActor.run { isRestoring = false }
+                    }
+                } label: {
+                    Text(isRestoring ? "Restaurando…" : "Restaurar compra")
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white.opacity(0.8))
+                }
+                .padding(.top, 4)
+
+                Button(action: onStartOver) {
+                    Text("Empezar de nuevo")
+                        .font(.system(size: 13, design: .rounded))
+                        .foregroundColor(.white.opacity(0.35))
+                }
+                .padding(.top, 8)
+                .padding(.bottom, 24)
+            }
+            .padding(.horizontal, 32)
+        }
+    }
+}
+
 final class BraverAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
     func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
         if #available(iOS 14.0, *) {
@@ -87,7 +152,7 @@ final class BraverAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
 @main
 struct BraverApp: App {
     @State private var showSplash = true
-    @State private var isSubscribed = true
+    @State private var isSubscribed = false
     @AppStorage("braver_onboarding_completed") private var onboardingDone = false
 
     init() {
@@ -120,9 +185,24 @@ struct BraverApp: App {
                                 }
                             }
                     } else {
-                        ZStack {
-                            Color.black.ignoresSafeArea()
-                        }
+                        SubscriptionLockedView(
+                            onRestore: {
+                                Task {
+                                    let result = await Superwall.shared.restorePurchases()
+                                    await MainActor.run {
+                                        if case .restored = result {
+                                            NotificationCenter.default.post(name: .braverSubscriptionChanged, object: nil)
+                                        }
+                                    }
+                                }
+                            },
+                            onStartOver: {
+                                UserDefaults.standard.removeObject(forKey: "braver_onboarding_step")
+                                withAnimation(.easeInOut(duration: 0.35)) {
+                                    onboardingDone = false
+                                }
+                            }
+                        )
                         .onAppear {
                             Superwall.shared.register(placement: "campaign_trigger")
                         }

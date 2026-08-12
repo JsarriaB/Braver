@@ -8,11 +8,12 @@ import SuperwallKit
 struct OnboardingView: View {
     let onCompleted: () -> Void
 
-    @State private var step: Int = 0
+    @AppStorage("braver_onboarding_step") private var step: Int = 0
     @State private var userName: String = ""
     @State private var userAge: String = ""
     @State private var q3selected: Set<Int> = []   // índices seleccionados para categorías de miedo
     @State private var showLoginSheet = false
+    @State private var selectedSituations: [String] = []
 
     // Respuestas
     @State private var q1answer: Int? = nil   // género
@@ -27,27 +28,6 @@ struct OnboardingView: View {
     @State private var q10answer: Int? = nil  // oportunidades perdidas por vergüenza
 
     let totalQuestions = 10
-
-    /// Score 0–100 calculado de las respuestas de diagnóstico
-    private var anxietyScore: Int {
-        var pts = 0
-        // Q2: frecuencia de evitación (Varias/día=4, Una/día=3, Algunas/semana=2, Raramente=1)
-        if let a = q2answer { pts += [4, 3, 2, 1][safe: a] ?? 0 }
-        // Q4: ha empeorado (Sí=2, No=0)
-        if q4answer == 0 { pts += 2 }
-        // Q6: dificultad bajo ansiedad (Con frecuencia=3, A veces=2, Raramente=1)
-        if let a = q6answer { pts += [3, 2, 1][safe: a] ?? 0 }
-        // Q7: evitación como mecanismo
-        if let a = q7answer { pts += [3, 2, 1][safe: a] ?? 0 }
-        // Q8: evitación bajo estrés
-        if let a = q8answer { pts += [3, 2, 1][safe: a] ?? 0 }
-        // Q9: evitación por aburrimiento
-        if let a = q9answer { pts += [3, 2, 1][safe: a] ?? 0 }
-        // Q10: oportunidades perdidas (Sí=2, No=0)
-        if q10answer == 0 { pts += 2 }
-        let maxPts = 4 + 2 + 3 + 3 + 3 + 3 + 2  // 20
-        return max(45, min(95, Int(Double(pts) / Double(maxPts) * 100)))
-    }
 
     var body: some View {
         ZStack {
@@ -260,15 +240,18 @@ struct OnboardingView: View {
                 .transition(.opacity)
 
             case 13:
-                AnalysisResultScreen(
-                    userScore: anxietyScore,
+                SituationsScreen(
                     onBack: { withAnimation(.easeInOut(duration: 0.3)) { step = 12 } },
-                    onContinue: { withAnimation(.easeInOut(duration: 0.45)) { step = 14 } }
+                    onContinue: { situations in
+                        selectedSituations = situations
+                        withAnimation(.easeInOut(duration: 0.45)) { step = 14 }
+                    }
                 )
                 .transition(.opacity)
 
             case 14:
-                SymptomsScreen(
+                SituationsRevealScreen(
+                    situations: selectedSituations,
                     onBack: { withAnimation(.easeInOut(duration: 0.3)) { step = 13 } },
                     onContinue: { withAnimation(.easeInOut(duration: 0.45)) { step = 15 } }
                 )
@@ -388,20 +371,6 @@ struct OnboardingView: View {
             UserDefaults.standard.set(ageTrimmed, forKey: "braver_user_age")
         }
 
-        // Bypass para modo demo (revisión App Store)
-        if UserDefaults.standard.bool(forKey: "braver_demo_mode") {
-            UserDefaults.standard.set(true, forKey: "braver_onboarding_completed")
-            Task {
-                await UserService.shared.createOrUpdateProfile(
-                    name: UserDefaults.standard.string(forKey: "braver_user_name"),
-                    age: UserDefaults.standard.string(forKey: "braver_user_age")
-                )
-                await UserService.shared.markOnboardingComplete()
-            }
-            onCompleted()
-            return
-        }
-
         let handler = PaywallPresentationHandler()
         handler.onDismiss { _, result in
             print("🟡 campaign_trigger dismissed with result:", result)
@@ -418,6 +387,7 @@ struct OnboardingView: View {
         Superwall.shared.register(placement: "campaign_trigger", handler: handler) {
             guard case .active = Superwall.shared.subscriptionStatus else { return }
             UserDefaults.standard.set(true, forKey: "braver_onboarding_completed")
+            UserDefaults.standard.removeObject(forKey: "braver_onboarding_step")
             Task {
                 await UserService.shared.createOrUpdateProfile(
                     name: UserDefaults.standard.string(forKey: "braver_user_name"),
@@ -524,7 +494,7 @@ private struct NameAgeScreen: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
-                        .background(BraverTheme.accent)
+                        .background(LinearGradient(colors: [BraverTheme.accent, BraverTheme.accentDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .cornerRadius(16)
                 }
                 .padding(.horizontal, 24)
@@ -581,21 +551,21 @@ private struct BraverCardRevealScreen: View {
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                Color(hex: "050507").ignoresSafeArea()
+                Color(hex: "050508").ignoresSafeArea()
 
-                // Mismo fondo que WelcomeScreen
+                // Misma familia azul-índigo que ContentView
                 Circle()
-                    .fill(Color(hex: "0E9090").opacity(0.20))
+                    .fill(BraverTheme.ambientCore.opacity(0.22))
                     .frame(width: geo.size.width * 1.1)
                     .blur(radius: 80)
                     .offset(x: -geo.size.width * 0.3, y: -geo.size.height * 0.28)
                 Circle()
-                    .fill(Color(hex: "4C9EEB").opacity(0.12))
+                    .fill(BraverTheme.accent.opacity(0.14))
                     .frame(width: geo.size.width * 0.9)
                     .blur(radius: 70)
                     .offset(x: geo.size.width * 0.4, y: -geo.size.height * 0.05)
                 Circle()
-                    .fill(Color(hex: "0E9090").opacity(0.08))
+                    .fill(BraverTheme.ambientDeep.opacity(0.10))
                     .frame(width: geo.size.width * 0.7)
                     .blur(radius: 60)
                     .offset(x: geo.size.width * 0.1, y: geo.size.height * 0.2)
@@ -626,7 +596,7 @@ private struct BraverCardRevealScreen: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
-                            .background(BraverTheme.accent)
+                            .background(LinearGradient(colors: [BraverTheme.accent, BraverTheme.accentDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
                             .cornerRadius(16)
                     }
                     .padding(.horizontal, 24)
@@ -685,10 +655,10 @@ private struct BraverIdentityCard: View {
             ZStack {
                 LinearGradient(
                     stops: [
-                        .init(color: Color(hex: "0A6060"), location: 0.0),
-                        .init(color: Color(hex: "3A7CC4"), location: 0.3),
-                        .init(color: Color(hex: "D05010"), location: 0.65),
-                        .init(color: Color(hex: "F59E0B"), location: 1.0)
+                        .init(color: Color(hex: "0F172A"), location: 0.0),
+                        .init(color: Color(hex: "1E3A8A"), location: 0.3),
+                        .init(color: Color(hex: "1D4ED8"), location: 0.6),
+                        .init(color: Color(hex: "F97316"), location: 1.0)
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -809,7 +779,7 @@ private struct NotificationsScreen: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
-                        .background(BraverTheme.accent)
+                        .background(LinearGradient(colors: [BraverTheme.accent, BraverTheme.accentDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .cornerRadius(16)
                 }
 
@@ -861,7 +831,7 @@ private struct LegalAcceptanceScreen: View {
 
                 VStack(spacing: 12) {
                     Button {
-                        if let url = URL(string: "https://jsarriab.github.io/braver/terms") {
+                        if let url = URL(string: "https://jsarriab.github.io/Braver/docs/terms-and-conditions") {
                             openURL(url)
                         }
                     } label: {
@@ -882,7 +852,7 @@ private struct LegalAcceptanceScreen: View {
                     }
 
                     Button {
-                        if let url = URL(string: "https://jsarriab.github.io/braver/privacy") {
+                        if let url = URL(string: "https://jsarriab.github.io/Braver/docs/privacy-policy") {
                             openURL(url)
                         }
                     } label: {
@@ -914,7 +884,7 @@ private struct LegalAcceptanceScreen: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
-                        .background(BraverTheme.accent)
+                        .background(LinearGradient(colors: [BraverTheme.accent, BraverTheme.accentDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .cornerRadius(16)
                 }
                 .padding(.horizontal, 24)
@@ -941,8 +911,6 @@ private struct AppReview: Identifiable {
 private struct RatingScreen: View {
     let onBack: () -> Void
     let onContinue: () -> Void
-
-    @Environment(\.requestReview) private var requestReview
 
     private let reviews: [AppReview] = [
         .init(initials: "CM", initialsColor: Color(hex: "4C9EEB"),
@@ -1042,13 +1010,13 @@ private struct RatingScreen: View {
 
             // CTA
             VStack(spacing: 0) {
-                Button(action: { requestReview(); onContinue() }) {
-                    Text("Puntuar Braver →")
+                Button(action: onContinue) {
+                    Text("Continuar →")
                         .font(.system(size: 17, weight: .semibold, design: .rounded))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
-                        .background(BraverTheme.accent)
+                        .background(LinearGradient(colors: [BraverTheme.accent, BraverTheme.accentDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .cornerRadius(16)
                 }
                 .padding(.horizontal, 24)
@@ -1192,7 +1160,7 @@ private struct GoalsScreen: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
-                        .background(BraverTheme.accent)
+                        .background(LinearGradient(colors: [BraverTheme.accent, BraverTheme.accentDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .cornerRadius(16)
                 }
                 .padding(.horizontal, 24)
@@ -1333,7 +1301,7 @@ private struct ProgressChartScreen: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .frame(height: 56)
-                    .background(BraverTheme.accent)
+                    .background(LinearGradient(colors: [BraverTheme.accent, BraverTheme.accentDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
                     .cornerRadius(16)
             }
             .padding(.horizontal, 24)
@@ -1573,7 +1541,7 @@ private struct SocialProofScreen: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
-                        .background(BraverTheme.accent)
+                        .background(LinearGradient(colors: [BraverTheme.accent, BraverTheme.accentDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .cornerRadius(16)
                 }
                 .padding(.horizontal, 24)
@@ -1831,7 +1799,7 @@ private struct FeatureSlidesScreen: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
-                        .background(BraverTheme.accent)
+                        .background(LinearGradient(colors: [BraverTheme.accent, BraverTheme.accentDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .cornerRadius(16)
                 }
                 .padding(.horizontal, 24)
@@ -2064,52 +2032,53 @@ private struct FloatingEmoji: View {
     }
 }
 
-// MARK: - Symptoms Screen (Step 13)
+// MARK: - Situations Screen (Step 13)
 
-private struct SymptomItem: Identifiable {
+private struct SituationItem: Identifiable {
     let id = UUID()
     let bold: String
     let rest: String
 }
 
-private struct SymptomCategory {
+private struct OnboardingSituationGroup {
     let title: String
-    let items: [SymptomItem]
+    let items: [SituationItem]
 }
 
-private struct SymptomsScreen: View {
+private struct SituationsScreen: View {
     let onBack: () -> Void
-    let onContinue: () -> Void
+    let onContinue: ([String]) -> Void
 
     @State private var selected: Set<UUID> = []
 
-    private let categories: [SymptomCategory] = [
-        .init(title: "Mental", items: [
-            .init(bold: "Pensamientos negativos", rest: " antes de situaciones sociales"),
-            .init(bold: "Miedo al juicio", rest: " de los demás"),
-            .init(bold: "Ansiedad anticipatoria", rest: " constante"),
-            .init(bold: "Dificultad para concentrarte", rest: " en conversaciones"),
-            .init(bold: "Baja autoestima", rest: " en contextos sociales")
-        ]),
-        .init(title: "Físico", items: [
-            .init(bold: "Sudoración o temblores", rest: " en situaciones sociales"),
-            .init(bold: "Corazón acelerado", rest: " al interactuar con desconocidos"),
-            .init(bold: "Tensión muscular", rest: " o sensación de bloqueo"),
-            .init(bold: "Voz cortada", rest: " o dificultad para hablar")
+    private let categories: [OnboardingSituationGroup] = [
+        .init(title: "Comunicación", items: [
+            .init(bold: "Evitar llamadas", rest: " telefónicas"),
+            .init(bold: "Cancelar planes", rest: " en el último momento"),
+            .init(bold: "Evitar decir que no", rest: " aunque no quieras algo"),
+            .init(bold: "Postergar conversaciones", rest: " difíciles")
         ]),
         .init(title: "Social", items: [
-            .init(bold: "Evitar llamadas", rest: " telefónicas"),
-            .init(bold: "Cancelar planes", rest: " por ansiedad en el último momento"),
+            .init(bold: "Evitar fiestas", rest: " o reuniones grandes"),
             .init(bold: "Sentirte invisible", rest: " o excluido en grupos"),
             .init(bold: "Dificultad para conocer", rest: " gente nueva"),
             .init(bold: "Aislamiento voluntario", rest: " para evitar el malestar")
         ]),
+        .init(title: "Digital", items: [
+            .init(bold: "Evitar videollamadas", rest: ""),
+            .init(bold: "Preferir mensajes de texto", rest: " a las llamadas"),
+            .init(bold: "Evitar videoconferencias", rest: " de trabajo o estudio")
+        ]),
         .init(title: "Personal", items: [
             .init(bold: "Oportunidades perdidas", rest: " por no atreverte"),
-            .init(bold: "Sensación de que todos te juzgan", rest: ""),
-            .init(bold: "Menor deseo", rest: " de relacionarte socialmente")
+            .init(bold: "Postergar decisiones", rest: " por miedo al juicio"),
+            .init(bold: "Evitar pedir ayuda", rest: " cuando la necesitas")
         ])
     ]
+
+    private var orderedItems: [SituationItem] {
+        categories.flatMap { $0.items }
+    }
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -2121,7 +2090,7 @@ private struct SymptomsScreen: View {
                     Spacer().frame(height: 80)
 
                     // Banner
-                    Text("La ansiedad social puede afectar negativamente muchas áreas de tu vida.")
+                    Text("Todos evitamos ciertas situaciones. Vamos a identificar las tuyas.")
                         .font(.system(size: 16, weight: .semibold, design: .rounded))
                         .foregroundColor(.white)
                         .padding(16)
@@ -2131,7 +2100,7 @@ private struct SymptomsScreen: View {
                         .padding(.horizontal, 20)
                         .padding(.bottom, 24)
 
-                    Text("Selecciona los síntomas que reconoces:")
+                    Text("Selecciona las que reconoces:")
                         .font(.system(size: 16, weight: .regular, design: .rounded))
                         .foregroundColor(Color(hex: "CBD5E1"))
                         .padding(.horizontal, 20)
@@ -2146,7 +2115,7 @@ private struct SymptomsScreen: View {
                             .padding(.bottom, 12)
 
                         ForEach(category.items) { item in
-                            SymptomRow(item: item, isSelected: selected.contains(item.id)) {
+                            SituationRow(item: item, isSelected: selected.contains(item.id)) {
                                 if selected.contains(item.id) {
                                     selected.remove(item.id)
                                 } else {
@@ -2175,7 +2144,7 @@ private struct SymptomsScreen: View {
                             .clipShape(Circle())
                     }
                     Spacer()
-                    Text("Síntomas")
+                    Text("Situaciones")
                         .font(.system(size: 17, weight: .semibold, design: .rounded))
                         .foregroundColor(.white)
                     Spacer()
@@ -2189,13 +2158,18 @@ private struct SymptomsScreen: View {
 
             // CTA button
             VStack(spacing: 0) {
-                Button(action: onContinue) {
+                Button(action: {
+                    let picked = orderedItems
+                        .filter { selected.contains($0.id) }
+                        .map { $0.bold }
+                    onContinue(picked)
+                }) {
                     Text("Empezar mi plan →")
                         .font(.system(size: 17, weight: .semibold, design: .rounded))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
-                        .background(BraverTheme.accent)
+                        .background(LinearGradient(colors: [BraverTheme.accent, BraverTheme.accentDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .cornerRadius(16)
                 }
                 .padding(.horizontal, 24)
@@ -2207,8 +2181,8 @@ private struct SymptomsScreen: View {
     }
 }
 
-private struct SymptomRow: View {
-    let item: SymptomItem
+private struct SituationRow: View {
+    let item: SituationItem
     let isSelected: Bool
     let onTap: () -> Void
 
@@ -2247,28 +2221,35 @@ private struct SymptomRow: View {
     }
 }
 
-// MARK: - Safe subscript helper
-private extension Array {
-    subscript(safe index: Int) -> Element? {
-        indices.contains(index) ? self[index] : nil
-    }
-}
+// MARK: - Situations Reveal Screen (Step 12)
 
-// MARK: - Analysis Result Screen (Step 12)
-
-private struct AnalysisResultScreen: View {
-    let userScore: Int
+private struct SituationsRevealScreen: View {
+    let situations: [String]
     let onBack: () -> Void
     let onContinue: () -> Void
 
-    private let averageScore = 38
-    @State private var barProgress: Double = 0
-    @State private var labelOpacity: Double = 0
+    @State private var acknowledgedDisclaimer = false
+    @State private var visibleCount: Int = 0
+    @State private var showFooter: Bool = false
 
-    private var userColor: Color { Color(hex: "E8895A") }   // naranja cálido = score alto
-    private var avgColor:  Color { Color(hex: "14B8A6") }   // teal = media
+    private let reinforcements: [String] = [
+        "A mucha gente le pasa esto mismo.",
+        "No eres el único.",
+        "Es más común de lo que crees.",
+        "Con Braver, esto tiene solución."
+    ]
 
     var body: some View {
+        Group {
+            if acknowledgedDisclaimer {
+                revealContent
+            } else {
+                disclaimerContent
+            }
+        }
+    }
+
+    private var disclaimerContent: some View {
         ZStack {
             Color(hex: "050507").ignoresSafeArea()
 
@@ -2290,6 +2271,63 @@ private struct AnalysisResultScreen: View {
                 Spacer()
             }
 
+            VStack(spacing: 20) {
+                Spacer()
+
+                Image(systemName: "info.circle.fill")
+                    .font(.system(size: 40))
+                    .foregroundColor(BraverTheme.accent)
+
+                Text("Antes de continuar")
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+
+                Text("Esto es una guía personalizada basada únicamente en tus propias respuestas. No es un diagnóstico médico ni una evaluación clínica. Si sientes que la ansiedad social afecta seriamente tu día a día, te recomendamos buscar apoyo profesional.")
+                    .font(.system(size: 15, weight: .regular, design: .rounded))
+                    .foregroundColor(Color(hex: "94A3B8"))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+
+                Spacer()
+
+                Button(action: { withAnimation(.easeInOut(duration: 0.3)) { acknowledgedDisclaimer = true } }) {
+                    Text("Entendido, continuar →")
+                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(LinearGradient(colors: [BraverTheme.accent, BraverTheme.accentDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .cornerRadius(16)
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 40)
+            }
+        }
+    }
+
+    private var revealContent: some View {
+        ZStack {
+            Color(hex: "050507").ignoresSafeArea()
+
+            // Back button
+            VStack {
+                HStack {
+                    Button(action: { withAnimation(.easeInOut(duration: 0.3)) { acknowledgedDisclaimer = false } }) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(width: 40, height: 40)
+                            .background(Color.white.opacity(0.12))
+                            .clipShape(Circle())
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 12)
+                Spacer()
+            }
+
             ScrollView {
                 VStack(spacing: 28) {
                     Spacer().frame(height: 60)
@@ -2297,62 +2335,34 @@ private struct AnalysisResultScreen: View {
                     // Header
                     VStack(spacing: 10) {
                         HStack(spacing: 8) {
-                            Text("Análisis completado")
-                                .font(.system(size: 26, weight: .bold, design: .rounded))
+                            Text("Esto es lo que hemos identificado")
+                                .font(.system(size: 24, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
+                                .multilineTextAlignment(.center)
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 22))
                                 .foregroundColor(Color(hex: "22C55E"))
                         }
-                        Text("Tenemos algo que contarte...")
+                        Text("Las situaciones que más te frenan")
                             .font(.system(size: 16, weight: .regular, design: .rounded))
                             .foregroundColor(Color(hex: "94A3B8"))
                     }
                     .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
 
-                    // Result sentence
-                    Text("Tus respuestas indican un nivel **elevado** de ansiedad social*")
-                        .font(.system(size: 18, weight: .semibold, design: .rounded))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 32)
-
-                    // Bar chart
-                    HStack(alignment: .bottom, spacing: 32) {
-                        BarView(
-                            percent: userScore,
-                            color: userColor,
-                            label: "Tu puntuación",
-                            maxHeight: 220,
-                            progress: barProgress
-                        )
-                        BarView(
-                            percent: averageScore,
-                            color: avgColor,
-                            label: "Media",
-                            maxHeight: 220,
-                            progress: barProgress
-                        )
-                    }
-                    .padding(.horizontal, 48)
-
-                    // Summary line
-                    VStack(spacing: 6) {
-                        HStack(spacing: 4) {
-                            Text("\(userScore)%")
-                                .font(.system(size: 17, weight: .bold, design: .rounded))
-                                .foregroundColor(userColor)
-                            Text("más ansiedad social que la media")
-                                .font(.system(size: 17, weight: .regular, design: .rounded))
-                                .foregroundColor(.white)
+                    // Cascada de situaciones reveladas
+                    VStack(spacing: 12) {
+                        ForEach(Array(situations.enumerated()), id: \.offset) { index, situation in
+                            SituationRevealRow(
+                                text: situation,
+                                reinforcement: reinforcements[index % reinforcements.count]
+                            )
+                            .opacity(index < visibleCount ? 1 : 0)
+                            .offset(y: index < visibleCount ? 0 : 12)
+                            .scaleEffect(index < visibleCount ? 1 : 0.96)
                         }
-                        Text("* Este resultado es orientativo, no un diagnóstico médico.")
-                            .font(.system(size: 12, weight: .regular, design: .rounded))
-                            .foregroundColor(Color(hex: "64748B"))
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 32)
                     }
-                    .opacity(labelOpacity)
+                    .padding(.horizontal, 20)
 
                     // CTA
                     Button(action: onContinue) {
@@ -2361,47 +2371,61 @@ private struct AnalysisResultScreen: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
-                            .background(BraverTheme.accent)
+                            .background(LinearGradient(colors: [BraverTheme.accent, BraverTheme.accentDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
                             .cornerRadius(16)
                     }
                     .padding(.horizontal, 24)
                     .padding(.bottom, 40)
+                    .opacity(showFooter ? 1 : 0)
                 }
             }
         }
-        .onAppear {
-            withAnimation(.easeOut(duration: 1.2).delay(0.3)) { barProgress = 1.0 }
-            withAnimation(.easeIn(duration: 0.5).delay(1.4)) { labelOpacity = 1.0 }
+        .onAppear { revealSituations() }
+    }
+
+    private func revealSituations() {
+        guard !situations.isEmpty else {
+            withAnimation(.easeIn(duration: 0.4)) { showFooter = true }
+            return
+        }
+        for i in 0..<situations.count {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3 + Double(i) * 0.22) {
+                withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
+                    visibleCount = i + 1
+                }
+            }
+        }
+        let totalDelay = 0.3 + Double(situations.count) * 0.22 + 0.4
+        DispatchQueue.main.asyncAfter(deadline: .now() + totalDelay) {
+            withAnimation(.easeIn(duration: 0.4)) { showFooter = true }
         }
     }
 }
 
-private struct BarView: View {
-    let percent: Int
-    let color: Color
-    let label: String
-    let maxHeight: CGFloat
-    let progress: Double
+private struct SituationRevealRow: View {
+    let text: String
+    let reinforcement: String
 
     var body: some View {
-        VStack(spacing: 8) {
-            ZStack(alignment: .top) {
-                // Bar
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(color)
-                    .frame(width: 90, height: maxHeight * CGFloat(percent) / 100 * CGFloat(progress))
-
-                Text("\(percent)%")
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 10) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 16))
+                    .foregroundColor(BraverTheme.accent)
+                Text(text)
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundColor(.white)
-                    .padding(.top, 10)
+                Spacer()
             }
-            .frame(height: maxHeight, alignment: .bottom)
-
-            Text(label)
-                .font(.system(size: 14, weight: .medium, design: .rounded))
+            Text(reinforcement)
+                .font(.system(size: 13, weight: .regular, design: .rounded))
                 .foregroundColor(Color(hex: "94A3B8"))
+                .padding(.leading, 26)
         }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.white.opacity(0.06))
+        .cornerRadius(14)
     }
 }
 
@@ -2419,7 +2443,7 @@ private struct AnalyzingScreen: View {
     private let phrases = [
         "Analizando tus respuestas",
         "Identificando tus patrones",
-        "Calculando tu nivel de ansiedad",
+        "Identificando tus situaciones de evitación",
         "Preparando tu plan personalizado",
         "Casi listo..."
     ]
@@ -2530,22 +2554,22 @@ private struct WelcomeScreen: View {
             ZStack(alignment: .bottom) {
 
                 // ── Background blobs ──────────────────────────────────
-                Color(hex: "050507").ignoresSafeArea()
+                Color(hex: "050508").ignoresSafeArea()
 
                 Circle()
-                    .fill(Color(hex: "0E9090").opacity(0.18))
+                    .fill(BraverTheme.ambientCore.opacity(0.20))
                     .frame(width: geo.size.width * 1.1)
                     .blur(radius: 80)
                     .offset(x: -geo.size.width * 0.3, y: -geo.size.height * 0.25)
 
                 Circle()
-                    .fill(Color(hex: "4C9EEB").opacity(0.12))
+                    .fill(BraverTheme.accent.opacity(0.14))
                     .frame(width: geo.size.width * 0.9)
                     .blur(radius: 70)
                     .offset(x: geo.size.width * 0.4, y: -geo.size.height * 0.05)
 
                 Circle()
-                    .fill(Color(hex: "0E9090").opacity(0.10))
+                    .fill(BraverTheme.ambientDeep.opacity(0.10))
                     .frame(width: geo.size.width * 0.7)
                     .blur(radius: 60)
                     .offset(x: geo.size.width * 0.1, y: geo.size.height * 0.2)
@@ -3315,6 +3339,8 @@ private struct OnboardingQuestionScreen: View {
 
 private struct PaywallScreen: View {
     let onStart: () -> Void
+    @State private var isRestoring = false
+    @State private var restoreAlert: String? = nil
 
     private var userName: String {
         UserDefaults.standard.string(forKey: "braver_user_name") ?? "Tú"
@@ -3514,10 +3540,38 @@ private struct PaywallScreen: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
-                            .background(BraverTheme.accent)
+                            .background(LinearGradient(colors: [BraverTheme.accent, BraverTheme.accentDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
                             .cornerRadius(BraverTheme.radiusPill)
                     }
                     .padding(.horizontal, 24)
+
+                    Button {
+                        guard !isRestoring else { return }
+                        isRestoring = true
+                        Task {
+                            let result = await Superwall.shared.restorePurchases()
+                            await MainActor.run {
+                                isRestoring = false
+                                switch result {
+                                case .restored:
+                                    NotificationCenter.default.post(name: .braverSubscriptionChanged, object: nil)
+                                    restoreAlert = "Compra restaurada correctamente."
+                                case .failed:
+                                    restoreAlert = "No se encontró ninguna compra activa."
+                                }
+                            }
+                        }
+                    } label: {
+                        if isRestoring {
+                            ProgressView()
+                                .tint(BraverTheme.textTertiary)
+                                .scaleEffect(0.8)
+                        } else {
+                            Text("Restaurar compras")
+                                .font(.system(size: 14, weight: .medium, design: .rounded))
+                                .foregroundColor(BraverTheme.textTertiary)
+                        }
+                    }
 
                     HStack(spacing: 16) {
                         Label("Empieza hoy", systemImage: "checkmark.circle.fill")
@@ -3534,7 +3588,24 @@ private struct PaywallScreen: View {
                         .foregroundColor(Color.white.opacity(0.22))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 32)
-                        .padding(.bottom, 28)
+                        .padding(.bottom, 8)
+
+                    HStack(spacing: 6) {
+                        Link("Términos y condiciones", destination: URL(string: "https://jsarriab.github.io/Braver/docs/terms-and-conditions")!)
+                        Text("·")
+                        Link("Política de privacidad", destination: URL(string: "https://jsarriab.github.io/Braver/docs/privacy-policy")!)
+                    }
+                    .font(.system(size: 11, design: .rounded))
+                    .foregroundColor(BraverTheme.textTertiary)
+                    .padding(.bottom, 28)
+                }
+                .alert("Restaurar compras", isPresented: Binding(
+                    get: { restoreAlert != nil },
+                    set: { if !$0 { restoreAlert = nil } }
+                )) {
+                    Button("OK", role: .cancel) { restoreAlert = nil }
+                } message: {
+                    Text(restoreAlert ?? "")
                 }
                 .background(Color(hex: "050507"))
             }
@@ -3730,7 +3801,7 @@ private struct PaywallDailyHabitsBlock: View {
 
     private let features: [(String, String)] = [
         ("🎯", "Completa retos diarios graduales"),
-        ("📊", "Registra tu SUDS y ve tu progreso"),
+        ("📊", "Registra tu nivel de reto y ve tu progreso"),
         ("🌱", "Cuida tu racha y ve crecer tu planta"),
         ("💡", "Reflexiona en el Momento del día"),
     ]
@@ -3818,8 +3889,6 @@ private struct AccountCreationScreen: View {
 
     @State private var isLoading = false
     @State private var errorMessage: String? = nil
-    @State private var showDemoCode = false
-    @State private var demoCodeInput = ""
 
     var title: String { mode == .create ? "Guarda tu progreso" : "Iniciar sesión" }
     var subtitle: String { mode == .create
@@ -3830,16 +3899,16 @@ private struct AccountCreationScreen: View {
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                Color(hex: "050507").ignoresSafeArea()
+                Color(hex: "050508").ignoresSafeArea()
 
                 Circle()
-                    .fill(Color(hex: "0E9090").opacity(0.16))
+                    .fill(BraverTheme.ambientCore.opacity(0.18))
                     .frame(width: geo.size.width * 1.1)
                     .blur(radius: 80)
                     .offset(x: -geo.size.width * 0.3, y: -geo.size.height * 0.3)
 
                 Circle()
-                    .fill(Color(hex: "4C9EEB").opacity(0.10))
+                    .fill(BraverTheme.accent.opacity(0.12))
                     .frame(width: geo.size.width * 0.9)
                     .blur(radius: 70)
                     .offset(x: geo.size.width * 0.4, y: -geo.size.height * 0.05)
@@ -3939,38 +4008,6 @@ private struct AccountCreationScreen: View {
                                 RoundedRectangle(cornerRadius: 100)
                                     .stroke(Color.white.opacity(0.18), lineWidth: 1)
                             )
-                        }
-
-                        // Código de acceso (para revisión App Store)
-                        if showDemoCode {
-                            HStack(spacing: 8) {
-                                TextField("Código de acceso", text: $demoCodeInput)
-                                    .font(.system(size: 15, design: .rounded))
-                                    .foregroundColor(.white)
-                                    .autocorrectionDisabled()
-                                    .textInputAutocapitalization(.never)
-                                    .padding(.horizontal, 14)
-                                    .padding(.vertical, 12)
-                                    .background(Color.white.opacity(0.07))
-                                    .cornerRadius(10)
-                                Button("Activar") {
-                                    if demoCodeInput.uppercased() == "BRAVERDEMO2024" {
-                                        UserDefaults.standard.set(true, forKey: "braver_demo_mode")
-                                        onContinue()
-                                    }
-                                }
-                                .font(.system(size: 15, weight: .semibold, design: .rounded))
-                                .foregroundColor(BraverTheme.accent)
-                            }
-                            .transition(.opacity)
-                        } else {
-                            Button {
-                                withAnimation(.easeInOut(duration: 0.2)) { showDemoCode = true }
-                            } label: {
-                                Text("Código de acceso")
-                                    .font(.system(size: 13, weight: .regular, design: .rounded))
-                                    .foregroundColor(Color(hex: "475569"))
-                            }
                         }
 
                         if let err = errorMessage {

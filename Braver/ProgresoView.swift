@@ -87,10 +87,18 @@ struct ProgresoView: View {
                         Text(tab)
                             .font(.system(size: 14, weight: selectedTab == idx ? .semibold : .regular, design: .rounded))
                             .foregroundColor(selectedTab == idx ? BraverTheme.textPrimary : BraverTheme.textTertiary)
-                        Rectangle()
-                            .fill(selectedTab == idx ? BraverTheme.accent : Color.clear)
-                            .frame(height: 2)
-                            .cornerRadius(1)
+                        RoundedRectangle(cornerRadius: 1.5)
+                            .fill(
+                                LinearGradient(
+                                    colors: selectedTab == idx
+                                        ? [BraverTheme.accent, BraverTheme.accentDeep]
+                                        : [Color.clear, Color.clear],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(height: 2.5)
+                            .animation(.spring(response: 0.3), value: selectedTab)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
@@ -147,7 +155,14 @@ struct ProgresoView: View {
             .cornerRadius(BraverTheme.radiusMedium)
             .overlay(
                 RoundedRectangle(cornerRadius: BraverTheme.radiusMedium)
-                    .stroke(BraverTheme.accent.opacity(0.3), lineWidth: 1)
+                    .stroke(
+                        LinearGradient(
+                            colors: [BraverTheme.accent.opacity(0.5), BraverTheme.accentDeep.opacity(0.2)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1.5
+                    )
             )
         }
     }
@@ -204,15 +219,15 @@ struct ProgresoView: View {
         let stageName = BraverOrb.stageName(for: streakService.orbProgressDays).uppercased()
         let nextStage = BraverOrb.nextStageName(for: streakService.orbProgressDays).uppercased()
 
-        // Teal colors matching home screen ambient
-        let tealDark  = Color(hex: "0B7A8A")
-        let tealMid   = Color(hex: "0E9090")
-        let tealLight = Color(hex: "14B8A6")
+        // Nueva familia azul — coherente con accent
+        let ringDeep  = Color(hex: "1E40AF")
+        let ringMid   = BraverTheme.accent
+        let ringLight = Color(hex: "93C5FD")
 
         return ZStack {
             // Outer aura glow
             Circle()
-                .fill(tealMid.opacity(0.18))
+                .fill(ringMid.opacity(0.18))
                 .frame(width: 240, height: 240)
                 .blur(radius: 28)
 
@@ -228,12 +243,12 @@ struct ProgresoView: View {
                         .frame(width: 190, height: 190)
                         .rotationEffect(.degrees(150))
 
-                    // Fill arc — teal gradient
+                    // Fill arc — gradiente azul
                     Circle()
                         .trim(from: 0, to: max(frac * arcSpan, frac > 0 ? 0.015 : 0))
                         .stroke(
                             LinearGradient(
-                                colors: [tealDark, tealMid, tealLight],
+                                colors: [ringDeep, ringMid, ringLight],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             ),
@@ -241,7 +256,7 @@ struct ProgresoView: View {
                         )
                         .frame(width: 190, height: 190)
                         .rotationEffect(.degrees(150))
-                        .shadow(color: tealMid.opacity(0.55), radius: 10, x: 0, y: 0)
+                        .shadow(color: ringMid.opacity(0.55), radius: 10, x: 0, y: 0)
                         .animation(.spring(response: 0.8, dampingFraction: 0.75), value: frac)
 
                     // Center text
@@ -251,7 +266,7 @@ struct ProgresoView: View {
                             .foregroundColor(BraverTheme.textPrimary)
                         Text(stageName)
                             .font(.system(size: 11, weight: .semibold, design: .rounded))
-                            .foregroundColor(tealLight)
+                            .foregroundColor(ringLight)
                             .kerning(1.5)
                     }
                     .offset(y: -6)
@@ -283,7 +298,7 @@ struct ProgresoView: View {
         .cornerRadius(BraverTheme.radiusLarge)
         .overlay(
             RoundedRectangle(cornerRadius: BraverTheme.radiusLarge)
-                .stroke(tealMid.opacity(0.2), lineWidth: 1)
+                .stroke(ringMid.opacity(0.2), lineWidth: 1)
         )
     }
 
@@ -307,7 +322,7 @@ struct ProgresoView: View {
     func statItem(value: String, label: String, color: Color) -> some View {
         VStack(spacing: 4) {
             Text(value)
-                .font(.system(size: 26, weight: .bold, design: .rounded))
+                .font(.system(size: 32, weight: .heavy, design: .rounded))
                 .foregroundColor(color)
             Text(label)
                 .font(.system(size: 11, weight: .medium, design: .rounded))
@@ -358,7 +373,7 @@ struct ProgresoView: View {
                             .foregroundColor(BraverTheme.textPrimary)
                         Spacer()
                         if let avg = stat.avgSuds {
-                            Text("SUDS ~\(Int(avg))")
+                            Text("Nivel ~\(Int(avg))")
                                 .font(.system(size: 11, weight: .medium, design: .rounded))
                                 .foregroundColor(BraverTheme.sudsColor(for: Int(avg)))
                                 .padding(.horizontal, 7)
@@ -734,6 +749,15 @@ struct BraverProPaywallView: View {
                         Text("Cancela cuando quieras · Sin compromisos")
                             .font(.system(size: 12, design: .rounded))
                             .foregroundColor(BraverTheme.textTertiary)
+
+                        HStack(spacing: 6) {
+                            Link("Términos y condiciones", destination: URL(string: "https://jsarriab.github.io/Braver/docs/terms-and-conditions")!)
+                            Text("·")
+                            Link("Política de privacidad", destination: URL(string: "https://jsarriab.github.io/Braver/docs/privacy-policy")!)
+                        }
+                        .font(.system(size: 11, design: .rounded))
+                        .foregroundColor(BraverTheme.textTertiary)
+                        .padding(.top, 4)
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 24)

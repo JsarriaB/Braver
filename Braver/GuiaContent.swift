@@ -1384,50 +1384,50 @@ enum GuiaContent {
                 ]
             ),
 
-            // m4l2 — TABS: cómo usar SUDS antes/durante/después
+            // m4l2 — TABS: cómo usar nivel de reto antes/durante/después
             Lesson(
                 id: "m4l2",
                 number: 2,
-                title: "Tu brújula de ansiedad: la escala SUDS",
+                title: "Tu brújula de ansiedad: mide tus nervios",
                 body: "", keyInsight: "", scienceFact: "",
                 screens: [
                     LessonScreenData(type: .intro,
-                        title: "La escala SUDS",
-                        subtitle: "Una forma objetiva de medir tu ansiedad y tomar mejores decisiones.",
+                        title: "Tu termómetro de nervios",
+                        subtitle: "Ponerle un número a cómo te sientes te ayuda a decidir mejor qué hacer.",
                         icon: "gauge.with.needle"),
                     LessonScreenData(type: .teoria,
-                        title: "¿Qué es el SUDS?",
-                        body: "SUDS (Subjective Units of Distress Scale) es una escala del 0 al 100 que mide tu nivel de activación en cualquier momento. 0 es calma total, 100 es el peor miedo que puedes imaginar.",
-                        highlight: "Medir la ansiedad la hace menos abrumadora. Lo que tiene número ya no es un monstruo descontrolado."),
+                        title: "¿En qué consiste?",
+                        body: "Es simplemente ponerle un número del 0 al 100 a cómo de nervioso te sientes ahora mismo. 0 es estar totalmente tranquilo, 100 es el nivel de nervios más alto que puedas imaginar.",
+                        highlight: "Ponerle un número a lo que sientes lo hace menos abrumador. Lo que tiene número ya no es un monstruo sin forma."),
                     LessonScreenData(type: .tabs,
-                        title: "Cómo usar el SUDS en cada momento",
+                        title: "Cómo usarlo en cada momento",
                         tabs: [
-                            LessonTab(title: "Antes", body: "Mide tu SUDS antes de una situación. Si está por encima de 70, usa respiración de caja para bajar antes de entrar. Si está entre 40-70, es tu zona de trabajo: incómodo pero manejable. Si está bajo 30, puedes buscar retos más difíciles."),
-                            LessonTab(title: "Durante", body: "Si puedes, haz una medición mental rápida a los 2-3 minutos de estar en la situación. La ansiedad suele bajar más de lo que predecías. Notar esa bajada es información valiosa para tu cerebro."),
-                            LessonTab(title: "Después", body: "Anota el SUDS máximo que alcanzaste y cuándo empezó a bajar. Con el tiempo, verás un patrón: tus picos son más bajos, bajan más rápido. Eso es evidencia de progreso real.")
+                            LessonTab(title: "Antes", body: "Antes de una situación, fíjate en cómo de nervioso estás. Si notas que es mucho, prueba a respirar despacio unos segundos antes de entrar. Si es un nivel llevadero, esa es tu zona ideal para practicar. Si casi no sientes nada, busca algo un poco más retador."),
+                            LessonTab(title: "Durante", body: "Si puedes, fíjate un momento en cómo estás a los 2-3 minutos de estar en la situación. Los nervios suelen bajar más de lo que esperabas. Notar esa bajada ya es información valiosa."),
+                            LessonTab(title: "Después", body: "Recuerda cuál fue tu punto más alto de nervios y cuándo empezó a bajar. Con el tiempo verás un patrón: los picos son más bajos y bajan más rápido. Esa es la prueba de que estás progresando de verdad.")
                         ]),
                     LessonScreenData(type: .teoria,
-                        title: "La jerarquía de exposición",
-                        body: "Para crear tu lista de retos, puntúa cada situación del 0 al 100 con SUDS. Empieza por las que están entre 20-40. Sube de escalón cuando te sientas cómodo en el actual.",
-                        highlight: "No saltes del 30 al 75 directamente. Los escalones cercanos son estrategia, no cobardía."),
+                        title: "Tu lista de retos, de menos a más",
+                        body: "Para crear tu lista de retos, puntúa cada situación del 0 al 100 según cuántos nervios te da. Empieza por las que te generan un nivel bajo. Sube de escalón cuando te sientas cómodo en el actual.",
+                        highlight: "No saltes de un nivel bajo a uno muy alto de golpe. Ir paso a paso es estrategia, no cobardía."),
                     LessonScreenData(type: .ejercicioIdentifica,
-                        title: "¿Qué decisión tomar según el SUDS?",
+                        title: "¿Qué harías en cada caso?",
                         identifyOptions: [
-                            IdentifyOption(text: "SUDS 80 antes de hablar en público: entrar directamente", isCorrect: false, explanation: "Con activación tan alta, usa respiración de caja primero."),
-                            IdentifyOption(text: "SUDS 45: situación adecuada para practicar", isCorrect: true, explanation: "Zona de trabajo ideal: incómodo pero manejable."),
-                            IdentifyOption(text: "SUDS 10: buscar una situación más desafiante", isCorrect: true, explanation: "Sin activación suficiente, no hay aprendizaje de extinción."),
-                            IdentifyOption(text: "SUDS 90: empujar igual porque la exposición lo baja", isCorrect: false, explanation: "Puede funcionar pero el riesgo de abandono es alto. Mejor prepararse primero."),
-                            IdentifyOption(text: "SUDS 55: buen momento para practicar con apoyo", isCorrect: true, explanation: "Zona alta pero abordable. Un buen reto.")
+                            IdentifyOption(text: "Muchísimos nervios antes de hablar en público: entrar directamente sin más", isCorrect: false, explanation: "Con los nervios tan altos, prueba antes a respirar despacio."),
+                            IdentifyOption(text: "Un nivel de nervios llevadero: buen momento para practicar", isCorrect: true, explanation: "Es tu zona ideal: incómodo pero manejable."),
+                            IdentifyOption(text: "Casi no sientes nervios: buscar algo un poco más retador", isCorrect: true, explanation: "Sin algo de nervios, no hay tanto aprendizaje."),
+                            IdentifyOption(text: "Nervios altísimos: seguir igual porque exponerte ya los baja", isCorrect: false, explanation: "Puede funcionar, pero el riesgo de que lo dejes a medias es alto. Mejor prepararte un poco antes."),
+                            IdentifyOption(text: "Nervios altos pero llevaderos: buen momento para practicar con apoyo", isCorrect: true, explanation: "Zona exigente pero abordable. Un buen reto.")
                         ]),
                     LessonScreenData(type: .resumen,
                         keyPoints: [
-                            "SUDS 0-100: tu medidor de activación en cualquier momento.",
-                            "Zona de trabajo principal: 40-60. Empieza en 20-40.",
-                            "Medir la ansiedad antes, durante y después revela el progreso que no ves de otra forma."
+                            "Ponle un número del 0 al 100 a tus nervios en cualquier momento.",
+                            "Tu zona ideal para practicar: un nivel medio, ni muy bajo ni insoportable.",
+                            "Fijarte en tus nervios antes, durante y después te muestra un progreso que no verías de otra forma."
                         ]),
                     LessonScreenData(type: .celebracion,
                         title: "¡Lección completada!",
-                        body: "Tienes una brújula. Ahora sabes exactamente dónde estás en cada momento."),
+                        body: "Tienes una brújula. Ahora sabes exactamente cómo te sientes en cada momento."),
                     LessonScreenData(type: .rating,
                         title: "¿Cuánto resuena esto contigo hoy?")
                 ]
@@ -2111,27 +2111,27 @@ enum GuiaContent {
             LessonScreenData(
                 type: .teoria,
                 title: "No existe un único camino",
-                body: "La exposición gradual funciona cuando defines escalones claros y los subes con intención. En contenido digital hay un camino natural — pero no es el único. Lo que importa no es por dónde empiezas, sino que cada escalón se repita hasta que el SUDS baje antes de pasar al siguiente.",
+                body: "La exposición gradual funciona cuando defines escalones claros y los subes con intención. En contenido digital hay un camino natural — pero no es el único. Lo que importa no es por dónde empiezas, sino que cada escalón se repita hasta que el nivel de reto baje antes de pasar al siguiente.",
                 highlight: "Algunos empiezan desde el escalón 5 directamente. Otros necesitan el 1. Los dos son válidos. Lo que no funciona es quedarse en el mismo escalón para siempre."
             ),
             LessonScreenData(
                 type: .carrusel,
                 title: "Los 8 escalones de la exposición digital",
                 cards: [
-                    LessonCard(title: "Escalón 1 · Texto anónimo", body: "Escribe sobre tu área en X, Reddit o LinkedIn sin foto de perfil real. El contenido existe, tú eres invisible. SUDS típico: 15-25.", icon: "pencil.circle.fill"),
-                    LessonCard(title: "Escalón 2 · Audio sin cara", body: "Graba un podcast, nota de voz pública o clip de audio. Tu voz existe, tu imagen no. SUDS típico: 25-40.", icon: "mic.circle.fill"),
-                    LessonCard(title: "Escalón 3 · Objeto o manos", body: "Vídeos donde aparecen tus manos, tus herramientas, lo que creas — sin cara. Estás en pantalla. Solo no se ve tu cara. SUDS típico: 30-45.", icon: "hand.raised.fill"),
-                    LessonCard(title: "Escalón 4 · Voz sobre imagen", body: "Tu voz explica algo mientras se ve texto, imágenes o pantalla. Presencia total de voz, presencia cero de imagen tuya. SUDS típico: 35-50.", icon: "waveform.circle.fill"),
-                    LessonCard(title: "Escalón 5 · Cara borrosa o de espaldas", body: "Apareces en vídeo pero no eres reconocible. Estás ahí. Tu cuerpo lo sabe. SUDS típico: 45-60.", icon: "person.crop.circle.badge.questionmark"),
-                    LessonCard(title: "Escalón 6 · Cara visible sin hablar", body: "Se te ve la cara, en un timelapse o vídeo silencioso. Sin palabras, pero presente. SUDS típico: 55-70.", icon: "person.crop.circle.fill"),
-                    LessonCard(title: "Escalón 7 · Hablar a cámara", body: "Tu cara, tu voz, tus palabras. Grabado. Sin tiempo real. Puedes repetir. Puedes editar. SUDS típico: 65-80.", icon: "video.circle.fill"),
-                    LessonCard(title: "Escalón 8 · Directo", body: "Sin edición posible. En tiempo real. La exposición máxima. Una vez que lo haces, todo lo demás es fácil. SUDS típico: 75-90.", icon: "livephoto")
+                    LessonCard(title: "Escalón 1 · Texto anónimo", body: "Escribe sobre tu área en X, Reddit o LinkedIn sin foto de perfil real. El contenido existe, tú eres invisible. Nivel de reto típico: 15-25.", icon: "pencil.circle.fill"),
+                    LessonCard(title: "Escalón 2 · Audio sin cara", body: "Graba un podcast, nota de voz pública o clip de audio. Tu voz existe, tu imagen no. Nivel de reto típico: 25-40.", icon: "mic.circle.fill"),
+                    LessonCard(title: "Escalón 3 · Objeto o manos", body: "Vídeos donde aparecen tus manos, tus herramientas, lo que creas — sin cara. Estás en pantalla. Solo no se ve tu cara. Nivel de reto típico: 30-45.", icon: "hand.raised.fill"),
+                    LessonCard(title: "Escalón 4 · Voz sobre imagen", body: "Tu voz explica algo mientras se ve texto, imágenes o pantalla. Presencia total de voz, presencia cero de imagen tuya. Nivel de reto típico: 35-50.", icon: "waveform.circle.fill"),
+                    LessonCard(title: "Escalón 5 · Cara borrosa o de espaldas", body: "Apareces en vídeo pero no eres reconocible. Estás ahí. Tu cuerpo lo sabe. Nivel de reto típico: 45-60.", icon: "person.crop.circle.badge.questionmark"),
+                    LessonCard(title: "Escalón 6 · Cara visible sin hablar", body: "Se te ve la cara, en un timelapse o vídeo silencioso. Sin palabras, pero presente. Nivel de reto típico: 55-70.", icon: "person.crop.circle.fill"),
+                    LessonCard(title: "Escalón 7 · Hablar a cámara", body: "Tu cara, tu voz, tus palabras. Grabado. Sin tiempo real. Puedes repetir. Puedes editar. Nivel de reto típico: 65-80.", icon: "video.circle.fill"),
+                    LessonCard(title: "Escalón 8 · Directo", body: "Sin edición posible. En tiempo real. La exposición máxima. Una vez que lo haces, todo lo demás es fácil. Nivel de reto típico: 75-90.", icon: "livephoto")
                 ]
             ),
             LessonScreenData(
                 type: .teoria,
                 title: "Cómo usar esta escalera",
-                body: "Elige el escalón donde tu SUDS sea entre 40 y 60. Si es menos de 40, súbelo. Si es más de 60, bájalo. Haz ese escalón hasta que el SUDS baje al menos 15 puntos antes de subir al siguiente. No hay prisa. Hay dirección.",
+                body: "Elige el escalón donde tu nivel de reto sea entre 40 y 60. Si es menos de 40, súbelo. Si es más de 60, bájalo. Haz ese escalón hasta que el nivel de reto baje al menos 15 puntos antes de subir al siguiente. No hay prisa. Hay dirección.",
                 highlight: "El error más común es saltar al escalón 7 desde el 1 y rendirse. El segundo error es quedarse en el 2 indefinidamente porque 'todavía no estoy listo'."
             ),
             LessonScreenData(
@@ -2139,7 +2139,7 @@ enum GuiaContent {
                 title: "¿Exposición gradual real o evitación con otro nombre?",
                 body: "Toca las que son exposición gradual de verdad.",
                 identifyOptions: [
-                    IdentifyOption(text: "Llevo 3 semanas en el escalón 2 y el SUDS ya bajó a 20 — voy a probar el 3", isCorrect: true, explanation: "Exposición gradual correcta: esperas a que el SUDS baje antes de avanzar, y luego avanzas."),
+                    IdentifyOption(text: "Llevo 3 semanas en el escalón 2 y el nivel de reto ya bajó a 20 — voy a probar el 3", isCorrect: true, explanation: "Exposición gradual correcta: esperas a que el nivel de reto baje antes de avanzar, y luego avanzas."),
                     IdentifyOption(text: "Llevo un año en el escalón 4 porque 'mi nicho no necesita cara'", isCorrect: false, explanation: "Evitación: 'mi nicho no necesita cara' es una racionalización. No hay intención de avanzar."),
                     IdentifyOption(text: "Empiezo en el escalón 5 aunque me da más miedo, porque sé que puedo", isCorrect: true, explanation: "Exposición gradual: elegir un escalón difícil con intención consciente es exactamente el mecanismo correcto."),
                     IdentifyOption(text: "Vuelvo al escalón 1 porque tuve un comentario malo en el escalón 3", isCorrect: false, explanation: "Evitación por retroceso: un comentario negativo no justifica bajar tres escalones. Es una respuesta de huida, no de aprendizaje.")
@@ -2151,7 +2151,7 @@ enum GuiaContent {
                 keyPoints: [
                     "8 escalones de exposición digital: desde texto anónimo hasta directo en vivo",
                     "No hay un punto de entrada obligatorio — hay uno correcto para ti ahora mismo",
-                    "Cada escalón se repite hasta que el SUDS baja al menos 15 puntos antes de subir"
+                    "Cada escalón se repite hasta que el nivel de reto baja al menos 15 puntos antes de subir"
                 ]
             ),
             LessonScreenData(type: .celebracion,
