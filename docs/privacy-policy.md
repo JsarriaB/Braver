@@ -113,10 +113,10 @@ No vendemos tus datos personales a terceros. Compartimos datos únicamente con l
 
 | Dato | Período de conservación |
 |------|------------------------|
-| Cuenta de usuario (nombre, edad, UID) | Mientras mantengas la cuenta activa + 30 días tras eliminarla |
+| Cuenta de usuario (nombre, edad, UID) | Mientras mantengas la cuenta activa. Se borra de inmediato, de forma permanente, al eliminar la cuenta desde la app |
 | Estado de suscripción | Mientras dure la relación contractual + el período legal requerido |
 | Conteo de mensajes Nova | 90 días desde la fecha del registro |
-| Datos en tu dispositivo (SwiftData) | Hasta que desinstales la app o uses "Eliminar todos mis datos" |
+| Datos en tu dispositivo (SwiftData) | Hasta que desinstales la app o uses "Eliminar cuenta y todos mis datos" en Ajustes |
 | Contenido de mensajes con Nova en OpenAI | Hasta 30 días (política estándar de prevención de abusos de OpenAI) |
 
 ---
@@ -127,7 +127,7 @@ Bajo el RGPD y la LOPDGDD (Ley Orgánica 3/2018), tienes derecho a:
 
 - **Acceso:** Solicitar qué datos tenemos sobre ti
 - **Rectificación:** Corregir datos incorrectos
-- **Supresión ("derecho al olvido"):** Desde la app, en *Ajustes → Eliminar todos mis datos*, puedes borrar de forma inmediata los datos guardados en tu dispositivo (progreso, retos, preferencias). Para eliminar también tu cuenta y los datos asociados en nuestros servidores, escríbenos y lo haremos en un plazo máximo de 30 días
+- **Supresión ("derecho al olvido"):** Desde la app, en *Ajustes → Eliminar cuenta y todos mis datos*, puedes eliminar tu cuenta y todos tus datos de forma inmediata y permanente: perfil, historial y check-ins en nuestros servidores, la cuenta en sí, y todo lo guardado en tu dispositivo. Si iniciaste sesión con Apple, también se revoca el acceso concedido a Braver. Esto no cancela una suscripción activa de Apple, que debes gestionar por separado desde los Ajustes de tu iPhone. Si no puedes acceder a la app, también puedes solicitar la eliminación escribiéndonos
 - **Portabilidad:** Recibir tus datos en formato estructurado
 - **Oposición y limitación:** Oponerte a ciertos tratamientos o limitar su uso
 - **Retirada del consentimiento:** Puedes retirar tu consentimiento en cualquier momento sin que esto afecte a la licitud del tratamiento previo

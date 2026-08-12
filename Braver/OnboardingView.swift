@@ -2229,15 +2229,19 @@ private struct SituationsRevealScreen: View {
     let onContinue: () -> Void
 
     @State private var acknowledgedDisclaimer = false
-    @State private var visibleCount: Int = 0
-    @State private var showFooter: Bool = false
+    @State private var phase: RevealPhase
 
-    private let reinforcements: [String] = [
-        "A mucha gente le pasa esto mismo.",
-        "No eres el único.",
-        "Es más común de lo que crees.",
-        "Con Braver, esto tiene solución."
-    ]
+    private enum RevealPhase: Equatable {
+        case wordReveal(index: Int)
+        case closingLine
+    }
+
+    init(situations: [String], onBack: @escaping () -> Void, onContinue: @escaping () -> Void) {
+        self.situations = situations
+        self.onBack = onBack
+        self.onContinue = onContinue
+        _phase = State(initialValue: situations.isEmpty ? .closingLine : .wordReveal(index: 0))
+    }
 
     var body: some View {
         Group {
@@ -2251,7 +2255,7 @@ private struct SituationsRevealScreen: View {
 
     private var disclaimerContent: some View {
         ZStack {
-            Color(hex: "050507").ignoresSafeArea()
+            BraverTheme.background.ignoresSafeArea()
 
             // Back button
             VStack {
@@ -2308,12 +2312,70 @@ private struct SituationsRevealScreen: View {
 
     private var revealContent: some View {
         ZStack {
-            Color(hex: "050507").ignoresSafeArea()
+            BraverTheme.background.ignoresSafeArea()
+
+            Circle()
+                .fill(BraverTheme.ambientCore.opacity(0.35))
+                .frame(width: 340, height: 340)
+                .blur(radius: 100)
+                .offset(y: -80)
+
+            // Tap-to-advance layer (sits below the CTA button and back button in z-order)
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture { advance() }
+
+            Group {
+                if case .wordReveal(let index) = phase {
+                    Text(situations[index])
+                        .id(index)
+                        .font(.system(size: 42, weight: .heavy, design: .rounded))
+                        .foregroundColor(BraverTheme.textPrimary)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(3)
+                        .minimumScaleFactor(0.6)
+                        .padding(.horizontal, 40)
+                        .transition(.opacity.combined(with: .scale(scale: 0.92)))
+                }
+
+                if phase == .closingLine {
+                    VStack(spacing: 20) {
+                        Text("Esto es lo que hoy te frena.")
+                            .font(.system(size: 26, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+
+                        Text("No es quien eres. Es tu punto de partida.")
+                            .font(.system(size: 16, weight: .regular, design: .rounded))
+                            .foregroundColor(BraverTheme.textSecondary)
+                            .multilineTextAlignment(.center)
+
+                        Button(action: onContinue) {
+                            Text("Ver mi plan →")
+                                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 56)
+                                .background(LinearGradient(colors: [BraverTheme.accent, BraverTheme.accentDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                .cornerRadius(16)
+                        }
+                        .padding(.top, 12)
+                    }
+                    .padding(.horizontal, 32)
+                    .transition(.opacity.combined(with: .scale(scale: 0.96)))
+                }
+            }
+            .animation(.easeOut(duration: 0.32), value: phase)
 
             // Back button
             VStack {
                 HStack {
-                    Button(action: { withAnimation(.easeInOut(duration: 0.3)) { acknowledgedDisclaimer = false } }) {
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            acknowledgedDisclaimer = false
+                            phase = situations.isEmpty ? .closingLine : .wordReveal(index: 0)
+                        }
+                    }) {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 17, weight: .semibold))
                             .foregroundColor(.white)
@@ -2327,106 +2389,48 @@ private struct SituationsRevealScreen: View {
                 .padding(.top, 12)
                 Spacer()
             }
-
-            ScrollView {
-                VStack(spacing: 28) {
-                    Spacer().frame(height: 60)
-
-                    // Header
-                    VStack(spacing: 10) {
-                        HStack(spacing: 8) {
-                            Text("Esto es lo que hemos identificado")
-                                .font(.system(size: 24, weight: .bold, design: .rounded))
-                                .foregroundColor(.white)
-                                .multilineTextAlignment(.center)
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 22))
-                                .foregroundColor(Color(hex: "22C55E"))
-                        }
-                        Text("Las situaciones que más te frenan")
-                            .font(.system(size: 16, weight: .regular, design: .rounded))
-                            .foregroundColor(Color(hex: "94A3B8"))
-                    }
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
-
-                    // Cascada de situaciones reveladas
-                    VStack(spacing: 12) {
-                        ForEach(Array(situations.enumerated()), id: \.offset) { index, situation in
-                            SituationRevealRow(
-                                text: situation,
-                                reinforcement: reinforcements[index % reinforcements.count]
-                            )
-                            .opacity(index < visibleCount ? 1 : 0)
-                            .offset(y: index < visibleCount ? 0 : 12)
-                            .scaleEffect(index < visibleCount ? 1 : 0.96)
-                        }
-                    }
-                    .padding(.horizontal, 20)
-
-                    // CTA
-                    Button(action: onContinue) {
-                        Text("Ver mi plan →")
-                            .font(.system(size: 17, weight: .semibold, design: .rounded))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(LinearGradient(colors: [BraverTheme.accent, BraverTheme.accentDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
-                            .cornerRadius(16)
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 40)
-                    .opacity(showFooter ? 1 : 0)
-                }
-            }
         }
-        .onAppear { revealSituations() }
+        .task(id: phase) {
+            guard case .wordReveal(let index) = phase else { return }
+            let hold = max(0.55, 0.85 - Double(index) * 0.03)
+            try? await Task.sleep(for: .seconds(hold))
+            guard !Task.isCancelled else { return }
+            advance()
+        }
     }
 
-    private func revealSituations() {
-        guard !situations.isEmpty else {
-            withAnimation(.easeIn(duration: 0.4)) { showFooter = true }
-            return
-        }
-        for i in 0..<situations.count {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3 + Double(i) * 0.22) {
-                withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
-                    visibleCount = i + 1
-                }
-            }
-        }
-        let totalDelay = 0.3 + Double(situations.count) * 0.22 + 0.4
-        DispatchQueue.main.asyncAfter(deadline: .now() + totalDelay) {
-            withAnimation(.easeIn(duration: 0.4)) { showFooter = true }
+    private func advance() {
+        guard case .wordReveal(let index) = phase else { return }
+        if index + 1 < situations.count {
+            phase = .wordReveal(index: index + 1)
+        } else {
+            phase = .closingLine
         }
     }
 }
 
-private struct SituationRevealRow: View {
-    let text: String
-    let reinforcement: String
+#Preview("Reveal — varias situaciones") {
+    SituationsRevealScreen(
+        situations: ["Evitar llamadas", "Hablar en público", "Cancelar planes", "Iniciar conversaciones"],
+        onBack: {},
+        onContinue: {}
+    )
+}
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 10) {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 16))
-                    .foregroundColor(BraverTheme.accent)
-                Text(text)
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
-                    .foregroundColor(.white)
-                Spacer()
-            }
-            Text(reinforcement)
-                .font(.system(size: 13, weight: .regular, design: .rounded))
-                .foregroundColor(Color(hex: "94A3B8"))
-                .padding(.leading, 26)
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.white.opacity(0.06))
-        .cornerRadius(14)
-    }
+#Preview("Reveal — una situación") {
+    SituationsRevealScreen(
+        situations: ["Evitar llamadas"],
+        onBack: {},
+        onContinue: {}
+    )
+}
+
+#Preview("Reveal — sin situaciones") {
+    SituationsRevealScreen(
+        situations: [],
+        onBack: {},
+        onContinue: {}
+    )
 }
 
 // MARK: - Analyzing Screen (Step 11)

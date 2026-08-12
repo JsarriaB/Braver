@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      match /completions/{completionId} {
+        allow read, write: if isOwner(userId);
+      }
+      match /checkins/{checkinId} {
+        allow read, write: if isOwner(userId);
+      }
+      match /subscription/{docId} {
+        // Solo lo escribe el servidor (webhook de Superwall vía Admin SDK,
+        // que se salta las reglas). El cliente solo puede leerlo.
+        allow read: if isOwner(userId);
+        allow write: if false;
+      }
+    }
+
+    match /novaUsage/{document} {
+      // Solo accesible desde las Cloud Functions con el SDK de administrador.
+      allow read, write: if false;
+    }
+  }
+}
